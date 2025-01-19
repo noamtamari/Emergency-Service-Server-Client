@@ -1,10 +1,9 @@
 package bgu.spl.net.impl.stomp;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 
-public class StompEncoderDecoder implements MessageEncoderDecoder<String> {
+public class StompEncoderDecoder implements MessageEncoderDecoder<Frame> {
 
     private byte[] bytes = new byte[1 << 10]; // Start with 1KB buffer
     private int len = 0;
@@ -16,9 +15,10 @@ public class StompEncoderDecoder implements MessageEncoderDecoder<String> {
      * @return a complete message if the null terminator is reached, or null otherwise
      */
     @Override
-    public String decodeNextByte(byte nextByte) {
+    public Frame decodeNextByte(byte nextByte) {
         if (nextByte == '\u0000') { // STOMP messages are terminated with the null character
-            return popString(); // Return the accumulated string and reset the buffer
+            Frame frame = Frame.fromBytes(bytes);
+            return frame; // Return the accumulated string and reset the buffer
         }
         pushByte(nextByte); // Add the byte to the buffer
         return null; // Message is not completed yet
@@ -31,8 +31,8 @@ public class StompEncoderDecoder implements MessageEncoderDecoder<String> {
      * @return the encoded byte array
      */
     @Override
-    public byte[] encode(String message) {
-        return (message + "\u0000").getBytes(StandardCharsets.UTF_8);
+    public byte[] encode(Frame message) {
+        return message.toBytes();
     }
 
     /**
@@ -45,16 +45,5 @@ public class StompEncoderDecoder implements MessageEncoderDecoder<String> {
             bytes = Arrays.copyOf(bytes, len * 2); // Double the buffer size if full
         }
         bytes[len++] = nextByte;
-    }
-
-    /**
-     * Extracts the accumulated string from the buffer and resets the buffer.
-     *
-     * @return the decoded string
-     */
-    private String popString() {
-        String result = new String(bytes, 0, len, StandardCharsets.UTF_8); // Decode UTF-8 string from the buffer
-        len = 0; // Reset the buffer for the next message
-        return result;
     }
 }

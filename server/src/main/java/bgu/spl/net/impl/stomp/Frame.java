@@ -107,14 +107,7 @@ public class Frame {
 
         return frame;
     }
-
-    // Static method to parse a STOMP frame incrementally (for streaming scenarios)
-    public static Frame fromByteStream(byte[] byteStream, int length) {
-        // Decode only the relevant portion of the byte stream based on the provided length
-        String rawFrame = new String(byteStream, 0, length, StandardCharsets.UTF_8);
-        return fromBytes(rawFrame.getBytes(StandardCharsets.UTF_8));
-    }
-
+    
     /**
      * Converts the Frame object to a byte array.
      *
