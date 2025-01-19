@@ -12,6 +12,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     public ConnectionsImpl() {
         connections = new ConcurrentHashMap<>();
+        channels = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -40,7 +41,5 @@ public class ConnectionsImpl<T> implements Connections<T> {
         connections.remove(connectionId);
     }
 
-    // public void connect(int connectionId) {
-    //     // IMPLEMENT IF NEEDED
-    // }
+  
 }
