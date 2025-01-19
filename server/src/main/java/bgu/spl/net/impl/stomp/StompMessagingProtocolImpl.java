@@ -5,20 +5,20 @@ import bgu.spl.net.srv.Connections;
 import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.StompMessagingProtocol;
 
-public class StompMessagingProtocolImpl<T> implements StompMessagingProtocol<T> {
+public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame> {
     private boolean shouldTerminate = false;
-    private Connections<T> connections;
+    private Connections<Frame> connections;
     int connectionId;
 
     @Override
-    public void start(int connectionId, Connections<T> connections) {
+    public void start(int connectionId, Connections<Frame> connections) {
         this.connections = connections;
         this.connectionId = connectionId;
     }
 
     @Override
-    public void process(T message) {
-        T response = processingMsg(message);
+    public void process(Frame message) {
+        Frame response = processingMsg(message);
         /// change
         if (response != null){
             connections.send(connectionId, response);
@@ -33,21 +33,18 @@ public class StompMessagingProtocolImpl<T> implements StompMessagingProtocol<T> 
         return shouldTerminate;
     }
 
-    public T processingMsg(T msg){
-        if(((Frame)msg).getType().equals("SUBSCRIBE") | ((Frame)msg).getType().equals("UNSUBSCRIBE") | ((Frame)msg).getType().equals("DISCONNECT")){
+    public Frame processingMsg(Frame msg){
+        if(((Frame)msg).getType().equals("SUBSCRIBE") | (msg.getType().equals("UNSUBSCRIBE") | (msg.getType().equals("DISCONNECT")){
             return null;
         }
         if(((Frame)msg).getType().equals("SEND")){
-            Frame frame = new Frame(("MESSAGE"), ((Frame)msg).getBody());
+            Frame frame = new Frame(("MESSAGE"), msg.getMessageBody());
             return handleSend(msg);
         }
     }
-    public T handleSend(T msg){
-        Frame frame = new Frame("SEND", ((Frame)msg).getBody());
-
-    }
-
-    public T handleSubscribe(T msg){
+    
+    public Frame handleSend(Frame msg){
+        Frame frame = new Frame("SEND", msg.getMessageBody());
 
     }
 }
