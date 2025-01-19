@@ -14,7 +14,7 @@ public class StompServer {
         int port = Integer.parseInt(args[0]);
         String type = args[1];
 
-         if ("tcp".equalsIgnoreCase(type)) {
+        if ("tcp".equalsIgnoreCase(type)) {
             Server.threadPerClient(
                     port, // port
                     StompMessagingProtocolImpl::new, // protocol factory
@@ -30,4 +30,5 @@ public class StompServer {
         } else {
             System.out.println("Illegal command");
         }
+    }
 }
