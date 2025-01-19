@@ -1,6 +1,5 @@
 package bgu.spl.net.impl.stomp;
 
-import java.sql.Connection;
 import java.util.concurrent.ConcurrentHashMap;
 
 import bgu.spl.net.srv.ConnectionHandler;
@@ -12,6 +11,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     public ConnectionsImpl() {
         connections = new ConcurrentHashMap<>();
+        channels = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -40,7 +40,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
         connections.remove(connectionId);
     }
 
-    // public void connect(int connectionId) {
-    //     // IMPLEMENT IF NEEDED
-    // }
+    public void connect(int connectionId, ConnectionHandler<T> handler) {
+         connections.put(connectionId, handler);
+    }
 }
