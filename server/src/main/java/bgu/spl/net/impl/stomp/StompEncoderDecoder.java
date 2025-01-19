@@ -18,6 +18,7 @@ public class StompEncoderDecoder implements MessageEncoderDecoder<Frame> {
     public Frame decodeNextByte(byte nextByte) {
         if (nextByte == '\u0000') { // STOMP messages are terminated with the null character
             Frame frame = Frame.fromBytes(bytes);
+            len = 0; // Reset the buffer
             return frame; // Return the accumulated string and reset the buffer
         }
         pushByte(nextByte); // Add the byte to the buffer
