@@ -12,7 +12,21 @@ public class Frame {
     public Frame(String type) {
         this.type = type;
         this.headers = new HashMap<>();
-        this.messageBody = "";
+        this.messageBody = "\n";
+    }
+
+    public Frame(String type, String messageBody) {
+        this.type = type;
+        this.headers = new HashMap<>();
+        this.messageBody = messageBody;
+    }
+
+    public Frame(Frame frame, String subscriptionId, String messageId) {
+        this.type = frame.getType();
+        this.headers = new HashMap<>();
+        this.headers.put("subscription", subscriptionId);
+        this.headers.put("message-id", messageId);
+        this.messageBody = frame.getMessageBody();
     }
 
     // Add a header
@@ -107,7 +121,7 @@ public class Frame {
 
         return frame;
     }
-    
+
     /**
      * Converts the Frame object to a byte array.
      *
