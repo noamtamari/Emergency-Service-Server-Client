@@ -1,0 +1,7 @@
+1) mvn compile
+2) navigate to the target folder inside the server - cd /workspaces/SPL3ProjectFiles/server/target
+3) give a running permission to the server java file - chmod +x StompServer.jar
+
+4) in order to run the client - cd to the bin folder in the client folder - cd /workspaces/SPL3ProjectFiles/client/bin
+5) give a running permission to the client java file - chmod +x ./StompESClient
+6) run the file - ./StompESClient
