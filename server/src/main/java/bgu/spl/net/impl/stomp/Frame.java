@@ -2,28 +2,29 @@ package bgu.spl.net.impl.stomp;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class Frame {
     private String type; // Frame type (e.g., CONNECT, SEND, SUBSCRIBE, etc.)
-    private HashMap<String, String> headers; // Key-value pairs for headers
+    private LinkedHashMap<String, String> headers; // Key-value pairs for headers
     private String messageBody; // Optional message body
 
     // Constructor
     public Frame(String type) {
         this.type = type;
-        this.headers = new HashMap<>();
+        this.headers = new LinkedHashMap<>();
         this.messageBody = "\n";
     }
 
     public Frame(String type, String messageBody) {
         this.type = type;
-        this.headers = new HashMap<>();
+        this.headers = new LinkedHashMap<>();
         this.messageBody = messageBody;
     }
 
     public Frame(Frame frame, String subscriptionId, int messageId) {
         this.type = frame.getType();
-        this.headers = new HashMap<>();
+        this.headers = new LinkedHashMap<>();
         this.headers.put("subscription", subscriptionId);
         this.headers.put("message-id", String.valueOf(messageId));
         this.messageBody = frame.getMessageBody();

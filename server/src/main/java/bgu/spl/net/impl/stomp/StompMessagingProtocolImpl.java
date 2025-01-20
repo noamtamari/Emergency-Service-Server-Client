@@ -22,7 +22,6 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
     public void process(Frame message) {
         Frame process = processingMsg(message);
         if (process != null){
-            process.addHeader("receipt", message.getHeader("receipt"));
             connections.send(connectionId, process);
         }
         else{

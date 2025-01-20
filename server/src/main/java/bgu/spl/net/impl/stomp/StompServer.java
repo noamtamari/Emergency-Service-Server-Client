@@ -1,6 +1,5 @@
 package bgu.spl.net.impl.stomp;
 
-import bgu.spl.net.impl.echo.LineMessageEncoderDecoder;
 import bgu.spl.net.srv.Server;
 
 public class StompServer {
