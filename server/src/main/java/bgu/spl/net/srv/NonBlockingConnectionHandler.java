@@ -1,7 +1,6 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.StompMessagingProtocol;
 import bgu.spl.net.impl.stomp.ConnectionsImpl;
 import bgu.spl.net.impl.stomp.Frame;
@@ -22,7 +21,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     private final MessageEncoderDecoder<T> encdec;
     private final Queue<ByteBuffer> writeQueue = new ConcurrentLinkedQueue<>();
     private final SocketChannel chan;
-    private final Reactor reactor;
+    private final Reactor<T> reactor;
     private ConnectionsImpl<T> connections;
     private int connectionId;
 
@@ -30,7 +29,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
             MessageEncoderDecoder<T> reader,
             StompMessagingProtocol<T> protocol,
             SocketChannel chan,
-            Reactor reactor,
+            Reactor<T> reactor,
              int connectionId,
              ConnectionsImpl<T> connections) {
         this.chan = chan;
@@ -42,11 +41,14 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     }
 
     public Runnable continueRead() {
+        
         ByteBuffer buf = leaseBuffer();
 
         boolean success = false;
         try {
             success = chan.read(buf) != -1;
+            connections.connect(connectionId ,this);
+            protocol.start(connectionId, connections);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -125,20 +127,12 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     @Override
     public void send(T msg) {
         if (msg != null) {
-            try {
-                writeQueue.add(ByteBuffer.wrap(encdec.encode(msg));
-                reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            writeQueue.add(ByteBuffer.wrap(encdec.encode(msg)));
+            reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
         }
         if (((Frame)msg).getType().equals("ERROR")) {
-            try {
-                connections.disconnect(connectionId);
-                close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            connections.disconnect(connectionId);
+            close();
         }
     }
 }
