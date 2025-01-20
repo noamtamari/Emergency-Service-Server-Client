@@ -21,11 +21,11 @@ public class Frame {
         this.messageBody = messageBody;
     }
 
-    public Frame(Frame frame, String subscriptionId, String messageId) {
+    public Frame(Frame frame, String subscriptionId, int messageId) {
         this.type = frame.getType();
         this.headers = new HashMap<>();
         this.headers.put("subscription", subscriptionId);
-        this.headers.put("message-id", messageId);
+        this.headers.put("message-id", String.valueOf(messageId));
         this.messageBody = frame.getMessageBody();
     }
 

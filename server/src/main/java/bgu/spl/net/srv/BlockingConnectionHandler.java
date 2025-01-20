@@ -33,6 +33,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     public void run() {
         try (Socket sock = this.sock) { // just for automatic closing
             int read;
+            connections.connect(connectionId ,this);
             protocol.start(connectionId, connections);
 
             in = new BufferedInputStream(sock.getInputStream());
@@ -63,6 +64,14 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
             try {
                 out.write(encdec.encode(msg));
                 out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (((Frame)msg).getType().equals("ERROR")) {
+            try {
+                connections.disconnect(connectionId);
+                close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
