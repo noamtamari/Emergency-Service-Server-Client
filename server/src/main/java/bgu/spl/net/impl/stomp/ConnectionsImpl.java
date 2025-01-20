@@ -19,6 +19,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
     public boolean send(int connectionId, T msg) {
         ConnectionHandler<T> connection = connections.get(connectionId);
         if (connection != null) {
+            // System.out.println("Connection impl send function : " + msg.toString());
             connection.send(msg);
             return true;
         }
@@ -29,11 +30,12 @@ public class ConnectionsImpl<T> implements Connections<T> {
     @Override
     public void send(String channel, T msg) {
         ConcurrentHashMap<Integer, String> channelConnections = channels.get(channel);
-        if (channelConnections != null && !channelConnections.isEmpty()) { // If there are clients subscribed to the channel or the channel exists
+        if (channelConnections != null && !channelConnections.isEmpty()) { // If there are clients subscribed to the
+                                                                           // channel or the channel exists
             for (Integer connectionId : channelConnections.keySet()) {
                 ConnectionHandler<T> ch = connections.get(connectionId);
-                if (ch != null){
-                    Frame frame = new Frame((Frame)msg, channelConnections.get(connectionId), messageId++);
+                if (ch != null) {
+                    Frame frame = new Frame((Frame) msg, channelConnections.get(connectionId), messageId++);
                     ch.send((T) frame);
                 }
             }
@@ -72,7 +74,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
         channels.putIfAbsent(channel, new ConcurrentHashMap<>());
 
         // Add the connection ID and subscription ID to the channel
-        channels.get(channel).put(connectionId, subscriptionId); 
+        channels.get(channel).put(connectionId, subscriptionId);
     }
 
     public int getMessageId() {
@@ -84,18 +86,18 @@ public class ConnectionsImpl<T> implements Connections<T> {
     }
 
     @Override
-    public boolean isSubscribed(int connectionId,String channel) {
-        if (channels.get(channel).get(connectionId) != null){
+    public boolean isSubscribed(int connectionId, String channel) {
+        if (channels.get(channel).get(connectionId) != null) {
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean removeSubscription(String subscriptionId, int connectionId){
+    public boolean removeSubscription(String subscriptionId, int connectionId) {
         boolean removed = false;
         for (ConcurrentHashMap<Integer, String> channel : channels.values()) {
-            if (channel.get(connectionId) != null && channel.get(connectionId).equals(subscriptionId)){
+            if (channel.get(connectionId) != null && channel.get(connectionId).equals(subscriptionId)) {
                 channel.remove(connectionId);
                 removed = true;
             }

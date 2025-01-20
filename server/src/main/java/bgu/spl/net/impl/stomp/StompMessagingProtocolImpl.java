@@ -21,13 +21,16 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
     @Override
     public void process(Frame message) {
         Frame process = processingMsg(message);
-        if (process != null){
-            process.addHeader("receipt", message.getHeader("receipt"));
+        if (process != null) {
             connections.send(connectionId, process);
-        }
-        else{
+        } else {
             Frame frame = new Frame("RECEIPT");
-            frame.addHeader("receipt", message.getHeader("receipt"));
+            String receipt = message.getHeader("receipt");
+            if (receipt == null) {
+                frame.addHeader("receipt-id", "345");
+            } else {
+                frame.addHeader("receipt-id", message.getHeader("receipt"));
+            }
             connections.send(connectionId, frame);
         }
     }
@@ -37,117 +40,127 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         return shouldTerminate;
     }
 
-    public Frame processingMsg(Frame msg){
-        if(msg.getType().equals("SUBSCRIBE")){
+    public Frame processingMsg(Frame msg) {
+        if (msg.getType().equals("SUBSCRIBE")) {
             return handleSubscribe(msg);
         }
-        if(msg.getType().equals("UNSUBSCRIBE")){
+        if (msg.getType().equals("UNSUBSCRIBE")) {
             return handleUnsubscribe(msg);
-        } 
-        if (msg.getType().equals("DISCONNECT")){
+        }
+        if (msg.getType().equals("DISCONNECT")) {
+            // System.out.println("Server got DISCONNECT and need to return receipt with id:
+            // " + msg.getHeader("receipt"));
             return handleDisconnect(msg);
         }
-        if(msg.getType().equals("SEND")){
+        if (msg.getType().equals("SEND")) {
             return handleSend(msg);
         }
-        if (msg.getType().equals("CONNECT")){
+        if (msg.getType().equals("CONNECT")) {
             return handleConnent(msg);
         }
         return null;
     }
 
-    public Frame handleSubscribe(Frame msg){
+    public Frame handleSubscribe(Frame msg) {
         String destination = msg.getHeader("destination");
         // Id is subscription id
         String subscriptionId = msg.getHeader("id");
         // subscriptionId is legal
-        if (subscriptionId != null && !subscriptionId.equals("")){
+        if (subscriptionId != null && !subscriptionId.equals("")) {
             // Desctination is legal
-            if (destination != null && !destination.equals("")){
+            if (destination != null && !destination.equals("")) {
                 connections.addToChannels(destination, connectionId, subscriptionId);
-            }
-            else{
-                return errorFrame("Destination illegal",msg);
+            } else {
+                return errorFrame("Destination illegal", msg);
             }
         }
-         // subscriptionId is illegal
-        else{
-            return errorFrame("Client's id is illegal",msg);// add msg 
+        // subscriptionId is illegal
+        else {
+            return errorFrame("Client's id is illegal", msg);// add msg
         }
         return null;
     }
 
-    public Frame handleUnsubscribe(Frame msg){
+    public Frame handleUnsubscribe(Frame msg) {
         String subscriptionId = msg.getHeader("id");
         // subscriptionId is legal
         boolean succseedUnsubscribe = false;
-        if (subscriptionId != null  && !subscriptionId.equals("")){
+        if (subscriptionId != null && !subscriptionId.equals("")) {
             succseedUnsubscribe = connections.removeSubscription(subscriptionId, connectionId);
         }
-        if (!succseedUnsubscribe){
-            return errorFrame("Cannot unsubscribe to unsubscribe user",msg);// add msg 
+        if (!succseedUnsubscribe) {
+            return errorFrame("Cannot unsubscribe to unsubscribe user", msg);// add msg
         }
         return null;
     }
 
-    public Frame handleDisconnect(Frame msg){
+    public Frame handleDisconnect(Frame msg) {
+        Frame frame = new Frame("RECEIPT");
+        frame.addHeader("receipt-id", msg.getHeader("receipt"));
+        connections.send(connectionId, frame);
         connections.disconnect(connectionId);
         UserHandler.getInstance().removeActiveUser(connectionId);
         shouldTerminate();
         return null;
     }
 
-    public Frame handleSend(Frame msg){
+    public Frame handleSend(Frame msg) {
         String destination = msg.getHeader("destination");
-        if (destination != null){
-            if (connections.isSubscribed(connectionId, destination)){
+        if (destination != null) {
+            if (connections.isSubscribed(connectionId, destination)) {
                 Frame frame = new Frame(("MESSAGE"), msg.getMessageBody());
                 connections.send(destination, frame);
-            }
-            else{
+            } else {
                 return errorFrame("User not subscribed to this channel", msg);
             }
-        }
-        else{
+        } else {
             return errorFrame("Destination illegal", msg);
         }
         return null;
 
     }
 
-    public Frame handleConnent(Frame msg){
+    public Frame handleConnent(Frame msg) {
         String userInfo = msg.getHeader("login");
         String userPasscode = msg.getHeader("passcode");
         // User already logged in
-        if (userInfo != null && userHandler.IsUserLogedIn(userInfo)){
+        if (userInfo != null && userHandler.IsUserLogedIn(userInfo)) {
             return errorFrame("User already logged in", msg);
         }
         // User not logged in and user exists
-        if (userInfo != null && userPasscode != null && userHandler.userExists(userInfo) && !userHandler.IsUserLogedIn(userInfo)){
+        if (userInfo != null && userPasscode != null && userHandler.userExists(userInfo)
+                && !userHandler.IsUserLogedIn(userInfo)) {
             boolean succseedLogin = userHandler.logInUser(userInfo, userPasscode, connectionId);
             // User not logged in and user exists and password is wrong
-            if (!succseedLogin){
+            if (!succseedLogin) {
                 return errorFrame("Wrong password", msg);
             }
         }
         Frame frame = new Frame("CONNECTED");
         String version = msg.getHeader("accept-version");
-        if (version != null){
+        if (version != null) {
             UserHandler.getInstance().addNewUser(userInfo, userPasscode, connectionId);
             frame.addHeader("version", version);
             connections.send(connectionId, frame);
-        }
-        else{
-            return errorFrame("Version not supported",msg);
+        } else {
+            return errorFrame("Version not supported", msg);
         }
         return null;
     }
 
-    public Frame errorFrame(String message, Frame msg){
+    public Frame errorFrame(String message, Frame msg) {
         Frame frame = new Frame("ERROR");
+        String receipt = msg.getHeader("receipt");
+        if (receipt == null) {
+            frame.addHeader("receipt-id", "-1");
+        } else {
+            frame.addHeader("receipt-id", msg.getHeader("receipt"));
+        }
         frame.addHeader("message", "malformed frame received");
-        frame.addHeader("The message:", "-----"+ "\n" + msg.toString() + "\n" + "-----");
+        String frameMsg = msg.stringMessage().replaceAll("\u0000", "");
+        frame.addHeader("The message", "\n" + "-----" + "\n" + frameMsg + "-----"+ "\n");
         frame.setMessageBody(message);
+        //System.out.println(frame.stringMessage().contains("\u0000"));
         shouldTerminate();
         return frame;
     }
