@@ -1,7 +1,6 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.StompMessagingProtocol;
 import bgu.spl.net.impl.stomp.ConnectionsImpl;
 
@@ -106,7 +105,8 @@ public class Reactor<T> implements Server<T> {
                 protocolFactory.get(),
                 clientChan,
                 this
-                ,connectionId++);
+                ,connectionId++,
+                connections);
         clientChan.register(selector, SelectionKey.OP_READ, handler);
     }
 
