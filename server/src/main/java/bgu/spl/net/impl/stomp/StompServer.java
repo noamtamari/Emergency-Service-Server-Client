@@ -14,18 +14,20 @@ public class StompServer {
         int port = Integer.parseInt(args[0]);
         String type = args[1];
 
-        if ("tcp".equalsIgnoreCase(type)) {
+        if (type.equals("tpc")){
             Server.threadPerClient(
-                    port, // port
-                    StompMessagingProtocolImpl::new, // protocol factory
-                    StompEncoderDecoder::new // message encoder decoder factory
+                        port, // port
+                        StompMessagingProtocolImpl::new, // protocol factory
+                        StompEncoderDecoder::new // message encoder-decoder factory
             ).serve();
-        } else if ("reactor".equalsIgnoreCase(type)) {
+        }
+        if (type.equals("reactor")) {
+            // Reactor server
             Server.reactor(
-                    Runtime.getRuntime().availableProcessors(),
+                    Runtime.getRuntime().availableProcessors(), // number of threads
                     port, // port
                     StompMessagingProtocolImpl::new, // protocol factory
-                    StompEncoderDecoder::new // message encoder decoder factory
+                    StompEncoderDecoder::new // message encoder-decoder factory
             ).serve();
         } else {
             System.out.println("Illegal command");

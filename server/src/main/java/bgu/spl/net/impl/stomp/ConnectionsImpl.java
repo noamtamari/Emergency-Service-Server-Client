@@ -6,9 +6,9 @@ import bgu.spl.net.srv.ConnectionHandler;
 import bgu.spl.net.srv.Connections;
 
 public class ConnectionsImpl<T> implements Connections<T> {
-    private ConcurrentHashMap<Integer, ConnectionHandler<T>> connections; // Map of client ID to ConnectionHandler
-    private ConcurrentHashMap<String, ConcurrentHashMap<Integer, String>> channels; // Map of channels to clients (connectionId, subscriptionId)
-    private int messageId = 0; // Unique ID for each message from the server
+    private ConcurrentHashMap<Integer, ConnectionHandler<T>> connections;
+    private ConcurrentHashMap<String, ConcurrentHashMap<Integer, String>> channels;
+    private int messageId = 0;
 
     public ConnectionsImpl() {
         connections = new ConcurrentHashMap<>();

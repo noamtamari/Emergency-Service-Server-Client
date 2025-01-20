@@ -2,6 +2,7 @@ package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
+import bgu.spl.net.api.StompMessagingProtocol;
 import bgu.spl.net.impl.stomp.ConnectionsImpl;
 import bgu.spl.net.impl.stomp.Frame;
 
@@ -12,7 +13,7 @@ import java.net.Socket;
 
 public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<T> {
 
-    private final MessagingProtocol<T> protocol;
+    private final StompMessagingProtocol<T> protocol;
     private final MessageEncoderDecoder<T> encdec;
     private final Socket sock;
     private BufferedInputStream in;
@@ -22,11 +23,12 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     private int connectionId;
 
 
-    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, MessagingProtocol<T> protocol, int connectionId) {
+    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, StompMessagingProtocol<T> protocol, int connectionId, ConnectionsImpl<T> connections) {
         this.sock = sock;
         this.encdec = reader;
         this.protocol = protocol;
         this.connectionId = connectionId;
+        this.connections = connections;
     }
 
     @Override
