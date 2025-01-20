@@ -6,9 +6,9 @@ import bgu.spl.net.srv.ConnectionHandler;
 import bgu.spl.net.srv.Connections;
 
 public class ConnectionsImpl<T> implements Connections<T> {
-    private ConcurrentHashMap<Integer, ConnectionHandler<T>> connections;// map of Clients ID to Clients(ConnectionHandler)
-    private ConcurrentHashMap<String,  ConcurrentHashMap<Integer, String>> channels;//map of channels to Clients (connectionId,subscriptionId)
-    private int messageId = 0; // unique id for each message from the server
+    private ConcurrentHashMap<Integer, ConnectionHandler<T>> connections; // Map of client ID to ConnectionHandler
+    private ConcurrentHashMap<String, ConcurrentHashMap<Integer, String>> channels; // Map of channels to clients (connectionId, subscriptionId)
+    private int messageId = 0; // Unique ID for each message from the server
 
     public ConnectionsImpl() {
         connections = new ConcurrentHashMap<>();
@@ -25,13 +25,17 @@ public class ConnectionsImpl<T> implements Connections<T> {
         return false;
     }
 
-    // Sends a message T to clients subscribed to the channel
+    @SuppressWarnings("unchecked")
     @Override
     public void send(String channel, T msg) {
-        ConcurrentHashMap<Integer, ConnectionHandler<T>> channelConnections = channels.get(channel);
-        if (channelConnections != null && !channelConnections.isEmpty()) { //if there are cleints subscribed to the channel or the channel exists
-            for (ConnectionHandler<T> connection : channelConnections.values()) {
-                connection.send(msg);
+        ConcurrentHashMap<Integer, String> channelConnections = channels.get(channel);
+        if (channelConnections != null && !channelConnections.isEmpty()) { // If there are clients subscribed to the channel or the channel exists
+            for (Integer connectionId : channelConnections.keySet()) {
+                ConnectionHandler<T> ch = connections.get(connectionId);
+                if (ch != null){
+                    Frame frame = new Frame((Frame)msg, channelConnections.get(connectionId), messageId++);
+                    ch.send((T) frame);
+                }
             }
         }
     }
@@ -39,9 +43,68 @@ public class ConnectionsImpl<T> implements Connections<T> {
     @Override
     public void disconnect(int connectionId) {
         connections.remove(connectionId);
+        for (ConcurrentHashMap<Integer, String> channel : channels.values()) {
+            channel.remove(connectionId);
+        }
     }
 
     public void connect(int connectionId, ConnectionHandler<T> handler) {
-         connections.put(connectionId, handler);
+        connections.put(connectionId, handler);
+    }
+
+    // Getters and Setters
+
+    public ConcurrentHashMap<Integer, ConnectionHandler<T>> getConnections() {
+        return connections;
+    }
+
+    public void setConnections(ConcurrentHashMap<Integer, ConnectionHandler<T>> connections) {
+        this.connections = connections;
+    }
+
+    public ConcurrentHashMap<String, ConcurrentHashMap<Integer, String>> getChannels() {
+        return channels;
+    }
+
+    @Override
+    public void addToChannels(String channel, int connectionId, String subscriptionId) {
+        // Add the channel if it doesn't exist
+        channels.putIfAbsent(channel, new ConcurrentHashMap<>());
+
+        // Add the connection ID and subscription ID to the channel
+        channels.get(channel).put(connectionId, subscriptionId); 
+    }
+
+    public int getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(int messageId) {
+        this.messageId = messageId;
+    }
+
+    @Override
+    public boolean isSubscribed(int connectionId,String channel) {
+        if (channels.get(channel).get(connectionId) != null){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean removeSubscription(String subscriptionId, int connectionId){
+        boolean removed = false;
+        for (ConcurrentHashMap<Integer, String> channel : channels.values()) {
+            if (channel.get(connectionId) != null && channel.get(connectionId).equals(subscriptionId)){
+                channel.remove(connectionId);
+                removed = true;
+            }
+        }
+        return removed;
+    }
+
+    // Increment and retrieve the next unique message ID
+    public synchronized int getNextMessageId() {
+        return messageId++;
     }
 }
