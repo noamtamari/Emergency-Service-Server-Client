@@ -122,6 +122,7 @@ public class Reactor<T> implements Server<T> {
         }
 
 	    if (key.isValid() && key.isWritable()) {
+            System.out.println("after this line handler.continueWrite() wiil be called");
             handler.continueWrite();
         }
     }
