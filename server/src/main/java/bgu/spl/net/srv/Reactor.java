@@ -52,7 +52,7 @@ public class Reactor<T> implements Server<T> {
             serverSock.configureBlocking(false);
             serverSock.register(selector, SelectionKey.OP_ACCEPT);
 			System.out.println("Server started");
-
+            System.out.println("Noy and noam reactor ):::::");
             while (!Thread.currentThread().isInterrupted()) {
 
                 selector.select();
@@ -68,7 +68,6 @@ public class Reactor<T> implements Server<T> {
                         handleReadWrite(key);
                     }
                 }
-
                 selector.selectedKeys().clear(); //clear the selected keys set so that we can know about new events
 
             }

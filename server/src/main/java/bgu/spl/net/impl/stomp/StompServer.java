@@ -1,23 +1,29 @@
 package bgu.spl.net.impl.stomp;
 
+import java.util.Scanner;
 import bgu.spl.net.srv.Server;
 
 public class StompServer {
 
     public static void main(String[] args) {
-        if (args.length < 2) {
+      
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter port and type (e.g., 7777 tpc or reactor):");
+        String input = scanner.nextLine();
+        String[] inputArgs = input.split(" ");
+
+        if (inputArgs.length < 2) {
             System.out.println("Usage: StompServer <port> <type>");
             return;
         }
-
-        int port = Integer.parseInt(args[0]);
-        String type = args[1];
+        int port = Integer.parseInt(inputArgs[0]);
+        String type = inputArgs[1];
 
         if (type.equals("tpc")){
             Server.threadPerClient(
-                        port, // port
-                        StompMessagingProtocolImpl::new, // protocol factory
-                        StompEncoderDecoder::new // message encoder-decoder factory
+                    port, // port
+                    StompMessagingProtocolImpl::new, // protocol factory
+                    StompEncoderDecoder::new // message encoder-decoder factory
             ).serve();
         }
         if (type.equals("reactor")) {

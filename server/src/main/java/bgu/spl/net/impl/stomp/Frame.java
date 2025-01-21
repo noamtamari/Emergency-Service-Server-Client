@@ -1,7 +1,6 @@
 package bgu.spl.net.impl.stomp;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class Frame {
@@ -66,14 +65,34 @@ public class Frame {
             frameString.append(key).append(":").append(headers.get(key)).append("\n");
         }
 
-        // End headers with a blank line
-        frameString.append("\n");
+        // // End headers with a blank line
+        // frameString.append("\n");
 
         // Append the message body (if exists) and the null terminator
         if (!messageBody.isEmpty()) {
             frameString.append(messageBody);
         }
         frameString.append("\u0000"); // STOMP null terminator
+        return frameString.toString();
+    }
+
+    public String stringMessage() {
+        StringBuilder frameString = new StringBuilder();
+        frameString.append(type).append("\n");
+
+        // Append headers
+        for (String key : headers.keySet()) {
+            frameString.append(key).append(":").append(headers.get(key)).append("\n");
+        }
+
+        // // End headers with a blank line
+        // frameString.append("\n");
+
+        // Append the message body (if exists) and the null terminator
+        if (!messageBody.isEmpty()) {
+            frameString.append(messageBody);
+        }
+
         return frameString.toString();
     }
 

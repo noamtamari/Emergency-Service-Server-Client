@@ -21,8 +21,8 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     private ConnectionsImpl<T> connections;
     private int connectionId;
 
-
-    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, StompMessagingProtocol<T> protocol, int connectionId, ConnectionsImpl<T> connections) {
+    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, StompMessagingProtocol<T> protocol,
+            int connectionId, ConnectionsImpl<T> connections) {
         this.sock = sock;
         this.encdec = reader;
         this.protocol = protocol;
@@ -34,7 +34,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     public void run() {
         try (Socket sock = this.sock) { // just for automatic closing
             int read;
-            connections.connect(connectionId ,this);
+            connections.connect(connectionId, this);
             protocol.start(connectionId, connections);
 
             in = new BufferedInputStream(sock.getInputStream());
@@ -43,6 +43,8 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
             while (!protocol.shouldTerminate() && connected && (read = in.read()) >= 0) {
                 T nextMessage = encdec.decodeNextByte((byte) read);
                 if (nextMessage != null) {
+                    // System.err.println("Client Sent The following message :
+                    // "+nextMessage.toString());
                     protocol.process(nextMessage);
                 }
             }
@@ -65,13 +67,16 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
             try {
                 out.write(encdec.encode(msg));
                 out.flush();
+                // System.out.println("message sent");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        if (((Frame)msg).getType().equals("ERROR")) {
+        if (((Frame) msg).getType().equals("ERROR")) {
+            connections.disconnect(connectionId);
+        }
+        if (protocol.shouldTerminate()){
             try {
-                connections.disconnect(connectionId);
                 close();
             } catch (IOException e) {
                 e.printStackTrace();
