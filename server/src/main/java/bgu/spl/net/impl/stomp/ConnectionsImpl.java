@@ -87,6 +87,9 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     @Override
     public boolean isSubscribed(int connectionId, String channel) {
+        if (channels.get(channel) == null){
+            return false;
+        }
         if (channels.get(channel).get(connectionId) != null) {
             return true;
         }

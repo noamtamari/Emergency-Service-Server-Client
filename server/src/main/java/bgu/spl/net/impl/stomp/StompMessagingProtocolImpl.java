@@ -21,7 +21,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
     @Override
     public void process(Frame message) {
         Frame process = processingMsg(message);
-        if (process != null) {
+        if (process != null){
             connections.send(connectionId, process);
         } else {
             Frame frame = new Frame("RECEIPT");
@@ -107,7 +107,10 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
     public Frame handleSend(Frame msg) {
         String destination = msg.getHeader("destination");
         if (destination != null) {
+            System.err.println("destination: " + destination);
+            System.err.println("con: " + connectionId);
             if (connections.isSubscribed(connectionId, destination)) {
+                System.out.println("DFddddSDFSdf");
                 Frame frame = new Frame(("MESSAGE"), msg.getMessageBody());
                 connections.send(destination, frame);
             } else {

@@ -1,7 +1,6 @@
 package bgu.spl.net.impl.stomp;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class Frame {
