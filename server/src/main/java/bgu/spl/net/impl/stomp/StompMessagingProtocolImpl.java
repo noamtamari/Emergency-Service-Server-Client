@@ -100,17 +100,14 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         connections.send(connectionId, frame);
         connections.disconnect(connectionId);
         UserHandler.getInstance().removeActiveUser(connectionId);
-        shouldTerminate();
+        shouldTerminate = true;
         return null;
     }
 
     public Frame handleSend(Frame msg) {
         String destination = msg.getHeader("destination");
         if (destination != null) {
-            System.err.println("destination: " + destination);
-            System.err.println("con: " + connectionId);
             if (connections.isSubscribed(connectionId, destination)) {
-                System.out.println("DFddddSDFSdf");
                 Frame frame = new Frame(("MESSAGE"), msg.getMessageBody());
                 connections.send(destination, frame);
             } else {
@@ -163,8 +160,10 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         String frameMsg = msg.stringMessage().replaceAll("\u0000", "");
         frame.addHeader("The message", "\n" + "-----" + "\n" + frameMsg + "-----"+ "\n");
         frame.setMessageBody(message);
+        UserHandler.getInstance().removeActiveUser(connectionId);
+
         //System.out.println(frame.stringMessage().contains("\u0000"));
-        shouldTerminate();
+        shouldTerminate = true;
         return frame;
     }
 }

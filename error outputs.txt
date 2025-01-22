@@ -1,0 +1,7 @@
+login command needs 3 args: {host:port} {username} {password}
+host:port are illegal
+
+please login first
+
+join command needs 1 args: {channel_name}
+logout command needs 0 args
