@@ -5,16 +5,18 @@
 #include <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
+using namespace std; 
 
 class ConnectionHandler {
 private:
+	const std::string user_name;
 	const std::string host_;
 	const short port_;
 	boost::asio::io_service io_service_;   // Provides core I/O functionality
 	tcp::socket socket_;
 
 public:
-	ConnectionHandler(std::string host, short port);
+	ConnectionHandler(string host, short port, string user_name);
 
 	virtual ~ConnectionHandler();
 
@@ -44,6 +46,8 @@ public:
 	// Send a message to the remote host.
 	// Returns false in case connection is closed before all the data is sent.
 	bool sendFrameAscii(const std::string &frame, char delimiter);
+
+	const string &get_user_name() const;
 
 	// Close down the connection properly.
 	void close();

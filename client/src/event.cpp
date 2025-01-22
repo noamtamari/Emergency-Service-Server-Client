@@ -10,6 +10,15 @@
 
 #include "../include/keyboardInput.h"
 
+// Splits a string by a delimiter and populates the result into a vector
+void split_str(const std::string& input, char delimiter, std::vector<std::string>& output) {
+    std::stringstream tokenStream(input);
+    std::string token;
+    while (std::getline(tokenStream, token, delimiter)) {
+        output.push_back(token);
+    }
+}
+
 using namespace std;
 using json = nlohmann::json;
 

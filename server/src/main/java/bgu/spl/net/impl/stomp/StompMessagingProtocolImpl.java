@@ -100,7 +100,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         connections.send(connectionId, frame);
         connections.disconnect(connectionId);
         UserHandler.getInstance().removeActiveUser(connectionId);
-        shouldTerminate();
+        this.shouldTerminate = true;
         return null;
     }
 
@@ -164,7 +164,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         frame.addHeader("The message", "\n" + "-----" + "\n" + frameMsg + "-----"+ "\n");
         frame.setMessageBody(message);
         //System.out.println(frame.stringMessage().contains("\u0000"));
-        shouldTerminate();
+        shouldTerminate = true;
         return frame;
     }
 }
