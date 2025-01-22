@@ -100,7 +100,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         connections.send(connectionId, frame);
         connections.disconnect(connectionId);
         UserHandler.getInstance().removeActiveUser(connectionId);
-        shouldTerminate = true;
+        this.shouldTerminate = true;
         return null;
     }
 

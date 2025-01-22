@@ -91,7 +91,6 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         while (!writeQueue.isEmpty()) {
             try {
                 ByteBuffer top = writeQueue.peek();
-                System.out.println(writeQueue.size());
                 chan.write(top);
                 if (top.hasRemaining()) {
                     return;
@@ -99,6 +98,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
                     writeQueue.remove();
                 }
             } catch (IOException ex) {
+                System.out.println("DFSDFSDFSDFSDFSDFSDFSDF");
                 ex.printStackTrace();
                 close();
             }
@@ -135,7 +135,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         if (((Frame) msg).getType().equals("ERROR")) {
             connections.disconnect(connectionId);
         }
-        if (protocol.shouldTerminate()) {
+        if (protocol.shouldTerminate()){
             close();
         }
     }
