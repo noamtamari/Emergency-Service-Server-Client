@@ -6,7 +6,7 @@
 #include <vector>
 #include <regex>
 #include <unordered_map>
-#include "../include/event.h" // Ensure this contains the definitions for Frame, Event, and names_and_events
+#include "../include/Event.h" // Ensure this contains the definitions for Frame, Event, and names_and_events
 #include "StompProtocol.h"
 #include <map>
 #include "../include/json.hpp"
@@ -227,10 +227,9 @@ void StompProtocol::handleSummary(vector<string> read){
             cout << "you are not subscribed to channel " + read[1] << endl;
         }
         else{
-           exportEventsToJSON(read[1],read[2],read[3]); 
+           exportEventsToJSON(read[1],read[2],"../bin/" + read[3]); 
         }
     }
-
 }
 
 // To be check 
@@ -279,9 +278,10 @@ const string StompProtocol::epoch_to_date(const string &date_and_time){
 void StompProtocol::exportEventsToJSON(const string& channel,const string& user, const string& filename) {
     // Ensure the user exists in the summary
     auto user_iter = summary.find(user);
+    bool empty;
     if (user_iter == summary.end()) {
         std::cerr << "Error: User not found in summary." << std::endl;
-        return;
+        empty = true;
     }
     // Ensure the channel exists in the user's reports
     const auto& user_reports = user_iter->second;
@@ -291,13 +291,62 @@ void StompProtocol::exportEventsToJSON(const string& channel,const string& user,
         return;
     }
     // Extract and sort events by date_time
-    const auto& report_from_channel = channel_iter->second;
-    std::map<int, Event> sorted_events;
-    for (const Event& event : report_from_channel) {
-        sorted_events.insert({event.get_date_time(), event});
+    int true_active = 0;
+    int total_sum_reports = 0;
+    int forces = 0;
+    vector<Event> report_from_channel = channel_iter->second;
+    map<int, map<string,Event>> sorted_events;
+    if (!empty){
+        for (const Event& event : report_from_channel) {
+            auto same_date_events = sorted_events.find(event.get_date_time());
+            if (same_date_events == sorted_events.end()){
+                map<string,Event> event_name_and_event = {};
+                event_name_and_event.insert({event.get_name(),event});
+            }
+            else{
+                map<string,Event> event_name_and_event = same_date_events->second;
+                event_name_and_event.insert({event.get_name(),event});
+            }
+            if((event.get_general_information().find("active")->second) == "true"){
+                true_active++;
+            }
+            if((event.get_general_information().find("forces arrival at scene")->second) == "true"){
+                forces++;
+            }
+            total_sum_reports++; 
+        }
     }
-
-    json output = json::array();
+    std::ofstream output_file;
+    output_file.open(filename);
+    if (!output_file){
+        cerr << "Error: could not open the file" << endl;
+    }
+    else{
+        output_file << "Channel " + channel << endl;
+        output_file << "Stats: " << endl;
+        output_file << "Total: " + total_sum_reports << endl;
+        output_file << "active: " + true_active << endl;
+        output_file << "forces arrival at scene: "+ forces << endl;
+        output_file << "" + channel << endl;
+        output_file << "Event Resports:" << endl;
+        output_file << "Channel " + channel << endl;
+        if (!empty){
+        int reports = 1;
+            // Iterate using an iterator
+            for (map<int, map<string,Event>>::iterator it = sorted_events.begin(); it != sorted_events.end(); ++it) {
+                map<string,Event> event_name_to_event = it->second;
+                for (map<string, Event>::iterator iter = event_name_to_event.begin(); iter != event_name_to_event.end(); ++iter) {
+                    Event event = iter->second;
+                    output_file << "Report_" + to_string(reports) + channel << endl;
+                    output_file << "\tcity: " + event.get_city() << endl;
+                    output_file << "\tdate time: " + epoch_to_date(to_string(event.get_date_time())) << endl;
+                    output_file << "\tevent name: " + event.get_name() << endl;
+                    output_file << "\tsummary: " + summerize_description(event.get_description()) << endl;
+                    output_file << "" + channel << endl;
+                }
+            }
+        }
+    }
 }
 
 

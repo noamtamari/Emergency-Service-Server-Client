@@ -1,7 +1,26 @@
-login command needs 3 args: {host:port} {username} {password}
+Command Tests:
+1) login command - 
+Error to be print: please login first
+	a)adsa
+	b)join police
+	c)loginn 127.0.0.1:7777 lotem sakura 
+
+Error to be print : login command needs 3 args: {host:port} {username} {password}. 
+	a)login
+	b)login 123 user password anotherArgument
+Error to be print: host:port are illegal
+	note that {String}:{String} will be checked in ConnectionHandler and it will print error correctly. 
+	a)login : nt 123
+	b)login 127.0.0.1: nt 123
+
+
+
+
+
+
+
 host:port are illegal
 
-please login first
 
 join command needs 1 args: {channel_name}
 logout command needs 0 args

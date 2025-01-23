@@ -2,8 +2,8 @@
 
 #include "../include/ConnectionHandler.h"
 #include "../include/Frame.h"
+#include "../include/Event.h"
 #include <set>
-
 
 // TODO: implement the STOMP protocol
 class StompProtocol
@@ -34,6 +34,7 @@ public:
     void handleMessage(Frame frame);
     void handleConnected(Frame frame);
     void handleReciept(Frame frame);
+    Frame parseFrame(const std::string &frame);
     Frame parseFrame(const string& input);
     const string summerize_description(const string &string);
     const string epoch_to_date(const string &date_and_time);
