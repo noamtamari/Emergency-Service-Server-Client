@@ -2,8 +2,8 @@
 
 #include "../include/ConnectionHandler.h"
 #include "../include/Frame.h"
+#include "../include/Event.h"
 #include <set>
-
 
 // TODO: implement the STOMP protocol
 class StompProtocol
@@ -35,8 +35,9 @@ public:
     void handleConnected(Frame frame);
     void handleReciept(Frame frame);
 
+    Frame parseFrame(const std::string &frame);
+
     void addReceipt(int receipt);
     bool hasReceipt(int receipt) const;
     void removeReceipt(int receipt);
-
 };

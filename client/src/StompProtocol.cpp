@@ -6,7 +6,7 @@
 #include <vector>
 #include <regex>
 #include <unordered_map>
-#include "../include/event.h" // Ensure this contains the definitions for Frame, Event, and names_and_events
+#include "../include/Event.h" // Ensure this contains the definitions for Frame, Event, and names_and_events
 
 using namespace std;
 
@@ -208,7 +208,7 @@ void StompProtocol::handleSummery(vector<string> read){
 }
 
 // To be check 
-Frame parseFrame(const string& input) {
+Frame StompProtocol::parseFrame(const string& input) {
     istringstream stream(input);
     string line;
 

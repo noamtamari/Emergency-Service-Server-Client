@@ -1,4 +1,7 @@
 #include "../include/keyboardInput.h"
+#include <sstream>
+#include <vector>
+#include <string>
 
 std::vector<std::string> keyboardInput::parseArguments(const std::string& line) {
     std::vector<std::string> arguments;

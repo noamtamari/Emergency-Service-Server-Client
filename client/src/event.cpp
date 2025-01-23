@@ -1,4 +1,4 @@
-#include "../include/event.h"
+#include "../include/Event.h"
 #include "../include/json.hpp"
 #include <iostream>
 #include <fstream>
@@ -155,15 +155,15 @@ names_and_events parseEventsFile(std::string json_path)
 }
 
 std::string Event::toString() const {
-    std::ostringstream oss;
+     std::ostringstream oss;
 
     oss << "user: " << eventOwnerUser << "\n";
     oss << "city: " << city << "\n";
     oss << "event Name: " << name << "\n";
     oss << "date time: " << date_time << "\n";
     oss << "general information:\n";
-    for (const auto& [key, value] : general_information) {
-        oss << "  " << key << ": " << value << "\n";
+    for (auto it = general_information.begin(); it != general_information.end(); ++it) {
+        oss << "  " << it->first << ": " << it->second << "\n";
     }
     oss << "description: " << description << "\n";
     return oss.str();
