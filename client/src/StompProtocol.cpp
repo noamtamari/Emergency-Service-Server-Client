@@ -7,8 +7,16 @@
 #include <regex>
 #include <unordered_map>
 #include "../include/event.h" // Ensure this contains the definitions for Frame, Event, and names_and_events
+#include "StompProtocol.h"
+#include <map>
+#include "../include/json.hpp"
+#include <fstream>
+#include <vector>
+#include <sstream>
+#include <cstring>
 
 using namespace std;
+using json = nlohmann::json;
 
 StompProtocol::StompProtocol(ConnectionHandler *connectionHandler) :
 connectionHandler(connectionHandler) {}
@@ -30,20 +38,21 @@ void StompProtocol::processServerFrame(const std::string &frame){
 }
 
 void StompProtocol::handleError(Frame frame){
-    // TODO: write this function 
+    // check somehow what failed, mabey we do need reveipt-id althoug i think we send it 
+    cout << "ERROR FROM THE SERVER: \n \n" << endl;
 }
 
 void StompProtocol::handleMessage(Frame frame){
     string report_frame = frame.getBody();
     Event event(report_frame);
-    auto user_reported = summery.find(event.getEventOwnerUser()); // Map of the user previous reports for all channels 
+    auto user_reported = summary.find(event.getEventOwnerUser()); // Map of the user previous reports for all channels 
     // User did not report previously for any channel
-    if (user_reported == summery.end()){
+    if (user_reported == summary.end()){
         unordered_map<string, vector<Event>> report_map = {};
         vector<Event> reports_for_channel_vector;
         reports_for_channel_vector.push_back(event);
         report_map.emplace(event.get_channel_name(),reports_for_channel_vector);
-        summery.emplace(event.getEventOwnerUser(),report_map);
+        summary.emplace(event.getEventOwnerUser(),report_map);
     }
     // User already reported previously
     else{
@@ -64,6 +73,8 @@ void StompProtocol::handleMessage(Frame frame){
 }
 
 void StompProtocol::handleConnected(Frame frame){
+    unordered_map<string, vector<Event>> report_map = {};
+    summary.emplace(connectionHandler->get_user_name(), report_map);
     connected = true;
 }
 
@@ -103,8 +114,11 @@ void StompProtocol::processUserInput(vector<string> read){
     else if (read[0] == "logout"){
         handleLogout(read);
     }
-    else if (read[0] == "summery"){
-        handleSummery(read);
+    else if (read[0] == "summary"){
+        handleSummary(read);
+    }
+    else{
+        cout << "Illegal command, please try a different one" << endl;
     }
 }
 
@@ -140,8 +154,16 @@ void StompProtocol::handleJoin(vector<string> read){
             cout << "Joined channel " + read[1];
         }
         else{
-             int join_subscription_id = subscription_id+1;
+            int join_subscription_id = subscription_id+1;
             channel_subscription.emplace(read[1], join_subscription_id);
+            // Adding the channel to my user summery reports 
+            auto my_user = summary.find(connectionHandler->get_user_name());
+            unordered_map<string, vector<Event>> previous_user_reports = my_user->second;
+            auto event_channel = previous_user_reports.find(read[1]);
+            if (event_channel == previous_user_reports.end()){
+                vector<Event> reports_for_channel_vector;
+                previous_user_reports.emplace(read[1],reports_for_channel_vector);
+            }
             reciept_respons.emplace(reciepts++,  "Joined channel " + read[1]);
             Frame frame("SUBSCRIBE", {{"destination", read[1]},{"receipt", std::to_string(reciepts)}, {"id", std::to_string(join_subscription_id)}},"");
             string send = frame.toString();
@@ -195,14 +217,18 @@ void StompProtocol::handleReport(vector<string> read){
     }
 }
 
-void StompProtocol::handleSummery(vector<string> read){
+void StompProtocol::handleSummary(vector<string> read){
     if (read.size() != 4){
         std::cout << "summary command needs 3 args: {channel_name} {user} {file}" << std::endl;
     }
     else{
-        // put something of summery
-        // TODO: write this function
-        reciept_respons.emplace(reciepts++, "reported");
+        auto channel_reported = summary.find(read[1]);
+        if (channel_reported == summary.end()){
+            cout << "you are not subscribed to channel " + read[1] << endl;
+        }
+        else{
+           exportEventsToJSON(read[1],read[2],read[3]); 
+        }
     }
 
 }
@@ -235,6 +261,43 @@ Frame parseFrame(const string& input) {
         body = line;
     }
     return Frame(type, headers, body);
+}
+
+
+const string StompProtocol::summerize_description(const string &description){
+    if (description.length() > 27) {
+        return description.substr(0, 27) + "..."; // Truncate to 27 chars and add "..."
+    } else {
+        return description; // Return the original string if it's not longer than 27 chars
+    }
+}
+
+const string StompProtocol::epoch_to_date(const string &date_and_time){
+    return date_and_time.substr(0,2) + "/" +  date_and_time.substr(2,4) + "/" + date_and_time.substr(4,6) + " " + date_and_time.substr(6,8) + ":"+ date_and_time.substr(8,10);
+}
+
+void StompProtocol::exportEventsToJSON(const string& channel,const string& user, const string& filename) {
+    // Ensure the user exists in the summary
+    auto user_iter = summary.find(user);
+    if (user_iter == summary.end()) {
+        std::cerr << "Error: User not found in summary." << std::endl;
+        return;
+    }
+    // Ensure the channel exists in the user's reports
+    const auto& user_reports = user_iter->second;
+    auto channel_iter = user_reports.find(channel);
+    if (channel_iter == user_reports.end()) {
+        std::cerr << "Error: Channel not found in user's reports." << std::endl;
+        return;
+    }
+    // Extract and sort events by date_time
+    const auto& report_from_channel = channel_iter->second;
+    std::map<int, Event> sorted_events;
+    for (const Event& event : report_from_channel) {
+        sorted_events.insert({event.get_date_time(), event});
+    }
+
+    json output = json::array();
 }
 
 
