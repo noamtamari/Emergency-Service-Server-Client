@@ -234,7 +234,7 @@ void StompProtocol::handleSummary(vector<string> read){
 }
 
 // To be check 
-Frame parseFrame(const string& input) {
+Frame StompProtocol::parseFrame(const string& input) {
     istringstream stream(input);
     string line;
 
