@@ -1,16 +1,15 @@
 #include "../include/Frame.h"
-
+#include <stdexcept>
+#include <string>
 #include <stdexcept>
 
-#include <stdexcept>
+using namespace std;
 
 // Constructor
 Frame::Frame(std::string cmd, std::unordered_map<std::string, std::string> hdrs, std::string bdy)
     : command(std::move(cmd)), headers(std::move(hdrs)), body(std::move(bdy)) {}
 
-
 // add distructor 
-
 
 
 // Set the command of the frame
@@ -61,17 +60,17 @@ std::string Frame::toString() const {
 
 // Parse a frame from a STOMP-formatted string
 Frame Frame::fromString(const std::string& rawFrame) {
-    std::istringstream stream(rawFrame);
-    std::string line;
+    istringstream stream(rawFrame);
+    string line;
 
     // Parse the command (first line)
-    if (!std::getline(stream, line) || line.empty()) {
+    if (!getline(stream, line) || line.empty()) {
         throw std::invalid_argument("Invalid STOMP frame: missing command");
     }
     std::string cmd = line;
 
     // Parse headers
-    std::unordered_map<std::string, std::string> hdrs;
+    unordered_map<std::string, std::string> hdrs;
     while (std::getline(stream, line) && !line.empty()) {
         auto colonPos = line.find(':');
         if (colonPos == std::string::npos) {
@@ -83,8 +82,8 @@ Frame Frame::fromString(const std::string& rawFrame) {
     }
 
     // Parse body
-    std::string bdy;
-    std::getline(stream, bdy, '\0'); // Read until null terminator
+    string bdy;
+    getline(stream, bdy, '\0'); // Read until null terminator
 
     return Frame(cmd, hdrs, bdy);
 }
