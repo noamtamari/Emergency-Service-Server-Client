@@ -22,12 +22,13 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
     public void process(Frame message) {
         Frame process = processingMsg(message);
         if (process != null){
+            // Send error frame
             connections.send(connectionId, process);
         } else {
             Frame frame = new Frame("RECEIPT");
             String receipt = message.getHeader("receipt");
             if (receipt == null) {
-                frame.addHeader("receipt-id", "345");
+                frame.addHeader("receipt-id", "-100");
             } else {
                 frame.addHeader("receipt-id", message.getHeader("receipt"));
             }
@@ -141,6 +142,12 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         if (version != null) {
             UserHandler.getInstance().addNewUser(userInfo, userPasscode, connectionId);
             frame.addHeader("version", version);
+            String receipt = msg.getHeader("receipt");
+            if (receipt == null) {
+                frame.addHeader("receipt-id", "-100");
+            } else {
+                frame.addHeader("receipt-id",receipt);
+            }
             connections.send(connectionId, frame);
         } else {
             return errorFrame("Version not supported", msg);
@@ -152,9 +159,9 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         Frame frame = new Frame("ERROR");
         String receipt = msg.getHeader("receipt");
         if (receipt == null) {
-            frame.addHeader("receipt-id", "-1");
+            frame.addHeader("receipt-id", "-100");
         } else {
-            frame.addHeader("receipt-id", msg.getHeader("receipt"));
+            frame.addHeader("receipt-id",receipt);
         }
         frame.addHeader("message", "malformed frame received");
         String frameMsg = msg.stringMessage().replaceAll("\u0000", "");
