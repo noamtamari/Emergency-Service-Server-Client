@@ -11,7 +11,6 @@
 #include "../include/Event.h" // Ensure this contains the definitions for Frame, Event, and names_and_events
 
 using namespace std;
-bool connected = true;
 unordered_map<string, int> channel_subscription = {};
 ConnectionHandler *connectionHandler; // delete it somewhere do not forget
 
@@ -23,6 +22,7 @@ bool isValidHostPort(const std::string &input);
 
 int main(int argc, char *argv[])
 {
+    bool connected = false;
     StompProtocol *stompProtocol = nullptr;
     ConnectionHandler *connectionHandler = nullptr;
     std::thread serverThread;
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
                 stompProtocol->processUserInput(read);
             }
         }
-        if (connectionHandler != nullptr)
+        if (connectionHandler != nullptr && stompProtocol != nullptr && !stompProtocol->isConnected())
         {
             cout << "Starting server listener" << endl;
             serverThread = std::thread(serverListner, std::ref(*connectionHandler), std::ref(*stompProtocol), std::ref(running));

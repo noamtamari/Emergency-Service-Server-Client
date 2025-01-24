@@ -20,6 +20,10 @@ using json = nlohmann::json;
 
 StompProtocol::StompProtocol(ConnectionHandler *connectionHandler) : connectionHandler(connectionHandler) {}
 
+bool StompProtocol::isConnected(){
+    return connected;
+}
+
 void StompProtocol::processServerFrame(const std::string &frame)
 {
     Frame newFrame = parseFrame(frame);
@@ -89,6 +93,7 @@ void StompProtocol::handleMessage(Frame frame)
 
 void StompProtocol::handleConnected(Frame frame)
 {
+    cout << "sdfsdfsdf" << endl;
     unordered_map<string, vector<Event>> report_map = {};
     summary.emplace(connectionHandler->get_user_name(), report_map);
     connected = true;
@@ -96,25 +101,29 @@ void StompProtocol::handleConnected(Frame frame)
 
 void StompProtocol::handleReciept(Frame frame)
 {
-    string reciept = frame.getHeader("reciept");
-    auto output = reciept_respons.find(std::stoi(reciept));
-    cout << "Handle Recipet " << endl;
+    string receipt = frame.getHeader("receipt-id");
+    std::unordered_map<int, std::string>::iterator output = reciept_respons.find(std::stoi(receipt));
+    // for (const auto &pair : reciept_respons) {
+    //     cout << "reciept_respons Key: " << pair.first << ", Value: " << pair.second << endl;
+    // }
+    // auto output = reciept_respons.find(std::stoi(reciept));
+    // cout << "Handle receipt " << endl;
     if (output == reciept_respons.end())
     {
-        cout << "recipet got lost" << endl;
+        cout << "receipt got lost" << endl;
     }
     else
     {
         // Print current output
-        cout << "Reciept from server: " << reciept << endl;
+        cout << "Reciept from server: " << receipt << endl;
         cout << output->second << endl;
-        reciept_respons.erase(std::stoi(reciept));
+        reciept_respons.erase(std::stoi(receipt));
     }
-    if (std::to_string(logout_reciept) == reciept)
+    if (std::to_string(logout_reciept) == receipt)
     {
         // logout protocol
     }
-    auto channel = unsubscribe_channel.find(std::stoi(reciept));
+    std::unordered_map<int, std::string>::iterator channel = unsubscribe_channel.find(std::stoi(receipt));
     if (channel != unsubscribe_channel.end())
     {
         channel_subscription.erase(channel->second);
@@ -156,7 +165,8 @@ void StompProtocol::processUserInput(vector<string> read)
 void StompProtocol::handleLogin(vector<string> read)
 {
     // std::cout << "login succesful" << std::endl;
-    reciept_respons.emplace(reciepts++, "login succesful");
+    reciepts++;
+    reciept_respons.emplace(reciepts, "login succesful");
     Frame frame("CONNECT", {{"accept-version", "1.2"}, {"receipt", std::to_string(reciepts)}, {"login", read[2]}, {"passcode", read[3]}}, "");
     string send = frame.toString();
     (*connectionHandler).sendLine(send);
@@ -171,7 +181,8 @@ void StompProtocol::handleLogout(vector<string> read)
     else
     {
         // connected = false;
-        reciept_respons.emplace(reciepts++, "Logged Out");
+        reciepts++;
+        reciept_respons.emplace(reciepts, "Logged Out");
         logout_reciept = reciepts;
         Frame frame("DISCONNECT", {{"receipt", std::to_string(reciepts)}}, "");
         string send = frame.toString();
@@ -205,7 +216,8 @@ void StompProtocol::handleJoin(vector<string> read)
                 vector<Event> reports_for_channel_vector;
                 previous_user_reports.emplace(read[1], reports_for_channel_vector);
             }
-            reciept_respons.emplace(reciepts++, "Joined channel " + read[1]);
+            reciepts++;
+            reciept_respons.emplace(reciepts, "Joined channel " + read[1]);
             Frame frame("SUBSCRIBE", {{"destination", read[1]}, {"receipt", std::to_string(reciepts)}, {"id", std::to_string(join_subscription_id)}}, "");
             string send = frame.toString();
             (*connectionHandler).sendLine(send);
@@ -229,7 +241,8 @@ void StompProtocol::handleExit(vector<string> read)
         else
         {
             // cout << "Exited channel " + channel_subscriptionId->first << endl;
-            reciept_respons.emplace(reciepts++, "Exited channel " + channel_subscriptionId->first);
+            reciepts++;
+            reciept_respons.emplace(reciepts, "Exited channel " + channel_subscriptionId->first);
             unsubscribe_channel.emplace(reciepts, channel_subscriptionId->first);
             Frame frame("UNSUBSCRIBE", {{"destination", read[1]}, {"receipt", to_string(reciepts)}, {"id", to_string(channel_subscriptionId->second)}}, "");
             string send = frame.toString();
@@ -247,16 +260,17 @@ void StompProtocol::handleReport(vector<string> read)
     else
     {
         // Parse the events file specified in read[1]
-        names_and_events information;
+        
         try
         {
-            information = parseEventsFile(read[1]);
+            names_and_events information = parseEventsFile(read[1]);
             string channel = information.channel_name;
             std::vector<Event> events = information.events;
             for (Event &event : events)
             {
                 // Create a frame for each event
-                reciept_respons.emplace(reciepts++, "reported");
+                reciepts++;
+                reciept_respons.emplace(reciepts, "reported");
                 event.setEventOwnerUser((*connectionHandler).get_user_name());
                 Frame frame("SEND", {{"destination", channel}, {"receipt", to_string(reciepts)}}, event.toString());
                 string send = frame.toString();
@@ -285,7 +299,7 @@ void StompProtocol::handleSummary(vector<string> read)
         }
         else
         {
-            exportEventsToJSON(read[1], read[2], read[3]);
+            exportEventsToJSON(read[1], read[2], "../bin/" + read[3]);
         }
     }
 }
@@ -346,10 +360,11 @@ void StompProtocol::exportEventsToJSON(const string &channel, const string &user
 {
     // Ensure the user exists in the summary
     auto user_iter = summary.find(user);
+    bool empty;
     if (user_iter == summary.end())
     {
         std::cerr << "Error: User not found in summary." << std::endl;
-        return;
+        empty = true;
     }
     // Ensure the channel exists in the user's reports
     const auto &user_reports = user_iter->second;
@@ -360,12 +375,71 @@ void StompProtocol::exportEventsToJSON(const string &channel, const string &user
         return;
     }
     // Extract and sort events by date_time
-    const auto &report_from_channel = channel_iter->second;
-    std::map<int, Event> sorted_events;
-    for (const Event &event : report_from_channel)
+    int true_active = 0;
+    int total_sum_reports = 0;
+    int forces = 0;
+    vector<Event> report_from_channel = channel_iter->second;
+    map<int, map<string, Event>> sorted_events;
+    if (!empty)
     {
-        sorted_events.insert({event.get_date_time(), event});
+        for (const Event &event : report_from_channel)
+        {
+            auto same_date_events = sorted_events.find(event.get_date_time());
+            if (same_date_events == sorted_events.end())
+            {
+                map<string, Event> event_name_and_event = {};
+                event_name_and_event.insert({event.get_name(), event});
+            }
+            else
+            {
+                map<string, Event> event_name_and_event = same_date_events->second;
+                event_name_and_event.insert({event.get_name(), event});
+            }
+            if ((event.get_general_information().find("active")->second) == "true")
+            {
+                true_active++;
+            }
+            if ((event.get_general_information().find("forces arrival at scene")->second) == "true")
+            {
+                forces++;
+            }
+            total_sum_reports++;
+        }
     }
-
-    json output = json::array();
+    std::ofstream output_file;
+    output_file.open(filename);
+    if (!output_file)
+    {
+        cerr << "Error: could not open the file" << endl;
+    }
+    else
+    {
+        output_file << "Channel " + channel << endl;
+        output_file << "Stats: " << endl;
+        output_file << "Total: " + total_sum_reports << endl;
+        output_file << "active: " + true_active << endl;
+        output_file << "forces arrival at scene: " + forces << endl;
+        output_file << "" + channel << endl;
+        output_file << "Event Resports:" << endl;
+        output_file << "Channel " + channel << endl;
+        if (!empty)
+        {
+            int reports = 1;
+            // Iterate using an iterator
+            for (map<int, map<string, Event>>::iterator it = sorted_events.begin(); it != sorted_events.end(); ++it)
+            {
+                map<string, Event> event_name_to_event = it->second;
+                for (map<string, Event>::iterator iter = event_name_to_event.begin(); iter != event_name_to_event.end(); ++iter)
+                {
+                    Event event = iter->second;
+                    output_file << "Report_" + to_string(reports) + channel << endl;
+                    output_file << "\tcity: " + event.get_city() << endl;
+                    output_file << "\tdate time: " + epoch_to_date(to_string(event.get_date_time())) << endl;
+                    output_file << "\tevent name: " + event.get_name() << endl;
+                    output_file << "\tsummary: " + summerize_description(event.get_description()) << endl;
+                    output_file << "" + channel << endl;
+                }
+            }
+        }
+    }
 }
