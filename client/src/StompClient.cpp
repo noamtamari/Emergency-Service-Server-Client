@@ -19,12 +19,14 @@ ConnectionHandler *connectionHandler; // delete it somewhere do not forget
 void serverListner(ConnectionHandler &connectionHandler, StompProtocol &stompProtocol, bool &running);
 
 // Declare the isValidHostPort function here
-bool isValidHostPort(const std::string& input);
+bool isValidHostPort(const std::string &input);
 
 int main(int argc, char *argv[])
 {
     StompProtocol *stompProtocol = nullptr;
     ConnectionHandler *connectionHandler = nullptr;
+    std::thread serverThread;
+
     bool running = true;
     while (running)
     {
@@ -94,9 +96,13 @@ int main(int argc, char *argv[])
         if (connectionHandler != nullptr)
         {
             cout << "Starting server listener" << endl;
-            std::thread serverThread(serverListner, std::ref(*connectionHandler), std::ref(*stompProtocol), std::ref(running));
+            serverThread = std::thread(serverListner, std::ref(*connectionHandler), std::ref(*stompProtocol), std::ref(running));
         }
         // delete both stomp protocol and connecntion hanler
+        if (read[0] == "logout")
+        {
+            serverThread.join();
+        }
     }
     // if (stompProtocol != nullptr)
     // {
@@ -106,6 +112,7 @@ int main(int argc, char *argv[])
     // {
     //     delete connectionHandler;
     // }
+
     cout << "Exiting main" << endl;
     return 0;
 }
@@ -114,22 +121,25 @@ void serverListner(ConnectionHandler &conncectionHandler, StompProtocol &stompPr
 {
     while (running)
     {
+        cout << "Server listener running" << endl;
         string serverMessage;
         bool gotMessage = conncectionHandler.getLine(serverMessage);
         if (gotMessage)
         {
+            cout << "Server message: " << serverMessage << endl;
             stompProtocol.processServerFrame(serverMessage);
         }
         // more things
     }
 }
 
-bool isValidHostPort(const std::string& input) {
+bool isValidHostPort(const std::string &input)
+{
     // Find the position of the colon
     size_t colonPos = input.find(':');
-    
+
     // Ensure the colon exists and has characters on both sides
-    return (colonPos != std::string::npos) &&       // Colon exists
-           (colonPos > 0) &&                        // Characters before colon
-           (colonPos < input.length() - 1);         // Characters after colon
+    return (colonPos != std::string::npos) && // Colon exists
+           (colonPos > 0) &&                  // Characters before colon
+           (colonPos < input.length() - 1);   // Characters after colon
 }

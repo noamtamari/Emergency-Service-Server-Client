@@ -43,8 +43,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
             while (!protocol.shouldTerminate() && connected && (read = in.read()) >= 0) {
                 T nextMessage = encdec.decodeNextByte((byte) read);
                 if (nextMessage != null) {
-                    // System.err.println("Client Sent The following message :
-                    // "+nextMessage.toString());
+                    System.err.println("Client Sent The following message :" + nextMessage.toString());
                     protocol.process(nextMessage);
                 }
             }
@@ -75,7 +74,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
         if (((Frame) msg).getType().equals("ERROR")) {
             connections.disconnect(connectionId);
         }
-        if (protocol.shouldTerminate()){
+        if (protocol.shouldTerminate()) {
             try {
                 close();
             } catch (IOException e) {
