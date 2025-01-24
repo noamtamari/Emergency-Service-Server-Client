@@ -30,8 +30,8 @@ public class UserHandler {
         allUsers.put(username, password);
         activeUsersByUserName.put(username, connectionId);
         activeUsersByConnectionId.put(connectionId, username);
-
     }
+
     // Method to add a new user
     public boolean logInUser(String username, String password, int connectionId) {
         if (validPassword(username,password) == true){
@@ -62,5 +62,4 @@ public class UserHandler {
         String username = activeUsersByConnectionId.remove(connectionId);
         activeUsersByUserName.remove(username);
     }
-
 }

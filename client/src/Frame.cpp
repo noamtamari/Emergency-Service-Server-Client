@@ -28,7 +28,7 @@ void Frame::setBody(const std::string& bdy) {
 }
 
 // Get the command of the frame
-std::string Frame::getCommand() const {
+std::string Frame::getCommand() const{
     return command;
 }
 

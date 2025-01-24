@@ -9,6 +9,7 @@
 #include <regex>
 #include <unordered_map>
 #include "../include/Event.h" // Ensure this contains the definitions for Frame, Event, and names_and_events
+#include <list>
 
 using namespace std;
 unordered_map<string, int> channel_subscription = {};
@@ -119,16 +120,30 @@ int main(int argc, char *argv[])
 
 void serverListner(ConnectionHandler &conncectionHandler, StompProtocol &stompProtocol, bool &running)
 {
+    std::list<string> msgs;
     while (running)
     {
-        cout << "Server listener running" << endl;
+        // cout << "Server listener running" << endl;
         string serverMessage;
         bool gotMessage = conncectionHandler.getLine(serverMessage);
-        if (gotMessage)
-        {
+        if (gotMessage && !serverMessage.empty()){
             cout << "Server message: " << serverMessage << endl;
             stompProtocol.processServerFrame(serverMessage);
         }
+        // if (serverMessage.empty()){
+        //     cout << "blaaaaaaaaaaaaa" << endl;
+        // }
+        //     stompProtocol.processServerFrame(msgs.front());
+        // if (gotMessage && !serverMessage.empty())
+        // {
+        //     msgs.push_back(serverMessage);
+        // }
+        // if (!msgs.empty())
+        // {
+        //     cout << "Server message: " << msgs.front() << endl;
+        //     stompProtocol.processServerFrame(msgs.front());
+        //     msgs.pop_front();
+        // }
         // more things
     }
 }

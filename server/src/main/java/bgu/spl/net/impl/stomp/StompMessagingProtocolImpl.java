@@ -70,7 +70,9 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         if (subscriptionId != null && !subscriptionId.equals("")) {
             // Desctination is legal
             if (destination != null && !destination.equals("")) {
-                connections.addToChannels(destination, connectionId, subscriptionId);
+                if (!connections.isSubscribed(connectionId,destination)){
+                    connections.addToChannels(destination, connectionId, subscriptionId);
+                }
             } else {
                 return errorFrame("Destination illegal", msg);
             }
@@ -90,7 +92,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
             succseedUnsubscribe = connections.removeSubscription(subscriptionId, connectionId);
         }
         if (!succseedUnsubscribe) {
-            return errorFrame("Cannot unsubscribe to unsubscribe user", msg);// add msg
+            return errorFrame("Cannot unsubscribe to unsubscribe user", msg); // add msg
         }
         return null;
     }
@@ -100,7 +102,9 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         frame.addHeader("receipt-id", msg.getHeader("receipt"));
         connections.send(connectionId, frame);
         connections.disconnect(connectionId);
-        UserHandler.getInstance().removeActiveUser(connectionId);
+        synchronized(userHandler){
+            userHandler.removeActiveUser(connectionId);
+        }
         this.shouldTerminate = true;
         return null;
     }
@@ -128,30 +132,28 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         if (userInfo != null && userHandler.IsUserLogedIn(userInfo)) {
             return errorFrame("User already logged in", msg);
         }
-        // User not logged in and user exists
-        if (userInfo != null && userPasscode != null && userHandler.userExists(userInfo)
-                && !userHandler.IsUserLogedIn(userInfo)) {
-            boolean succseedLogin = userHandler.logInUser(userInfo, userPasscode, connectionId);
-            // User not logged in and user exists and password is wrong
-            if (!succseedLogin) {
-                return errorFrame("Wrong password", msg);
+        synchronized(userHandler){
+            // User not logged in and user exists
+            if (userInfo != null && userPasscode != null && userHandler.userExists(userInfo)
+                    && !userHandler.IsUserLogedIn(userInfo)) {
+                boolean succseedLogin = userHandler.logInUser(userInfo, userPasscode, connectionId);
+                // User not logged in and user exists and password is wrong
+                if (!succseedLogin) {
+                    return errorFrame("Wrong password", msg);
+                }
             }
+            userHandler.addNewUser(userInfo, userPasscode, connectionId);
         }
         Frame frame = new Frame("CONNECTED");
         String version = msg.getHeader("accept-version");
-        if (version != null) {
-            UserHandler.getInstance().addNewUser(userInfo, userPasscode, connectionId);
-            frame.addHeader("version", version);
-            String receipt = msg.getHeader("receipt");
-            if (receipt == null) {
-                frame.addHeader("receipt-id", "-100");
-            } else {
-                frame.addHeader("receipt-id",receipt);
-            }
-            connections.send(connectionId, frame);
+        frame.addHeader("version", version);
+        String receipt = msg.getHeader("receipt");
+        if (receipt == null) {
+            frame.addHeader("receipt-id", "-100");
         } else {
-            return errorFrame("Version not supported", msg);
+            frame.addHeader("receipt-id",receipt);
         }
+        connections.send(connectionId, frame);
         return null;
     }
 
@@ -167,9 +169,9 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         String frameMsg = msg.stringMessage().replaceAll("\u0000", "");
         frame.addHeader("The message", "\n" + "-----" + "\n" + frameMsg + "-----"+ "\n");
         frame.setMessageBody(message);
-        UserHandler.getInstance().removeActiveUser(connectionId);
-
-        //System.out.println(frame.stringMessage().contains("\u0000"));
+        synchronized(userHandler){
+            UserHandler.getInstance().removeActiveUser(connectionId);
+        }
         shouldTerminate = true;
         return frame;
     }

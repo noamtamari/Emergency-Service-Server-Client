@@ -159,7 +159,7 @@ std::string Event::toString() const {
 
     oss << "user: " << eventOwnerUser << "\n";
     oss << "city: " << city << "\n";
-    oss << "event Name: " << name << "\n";
+    oss << "event name: " << name << "\n";
     oss << "date time: " << date_time << "\n";
     oss << "general information:\n";
     for (auto it = general_information.begin(); it != general_information.end(); ++it) {
