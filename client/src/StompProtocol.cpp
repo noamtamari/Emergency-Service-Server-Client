@@ -423,18 +423,29 @@ const string StompProtocol::summerize_description(const string &description)
 // Converts an epoch timestamp string to a human-readable date and time format
 const string StompProtocol::epoch_to_date(const string &input)
 {
-    string formattedDateTime;
-    formattedDateTime += input.substr(0, 2); // Days
-    formattedDateTime += "/";
-    formattedDateTime += input.substr(2, 2); // Months
-    formattedDateTime += "/";
-    formattedDateTime += input.substr(4, 2); // Years
-    formattedDateTime += " ";
-    formattedDateTime += input.substr(6, 2); // Minutes (again)
-    formattedDateTime += ":";
-    formattedDateTime += input.substr(8, 2); // Seconds (again)
+    // string formattedDateTime;
+    // formattedDateTime += input.substr(0, 2); // Days
+    // formattedDateTime += "/";
+    // formattedDateTime += input.substr(2, 2); // Months
+    // formattedDateTime += "/";
+    // formattedDateTime += input.substr(4, 2); // Years
+    // formattedDateTime += " ";
+    // formattedDateTime += input.substr(6, 2); // Minutes (again)
+    // formattedDateTime += ":";
+    // formattedDateTime += input.substr(8, 2); // Seconds (again)
 
-    return formattedDateTime;
+    // return formattedDateTime;
+    // Convert epoch seconds to time_t
+    long epochSeconds = std::stol(input);
+    std::time_t time = static_cast<std::time_t>(epochSeconds);
+
+    // Convert time_t to tm structure for local time
+    std::tm *localTime = std::localtime(&time);
+
+    // Use a stringstream to format the date and time
+    std::ostringstream oss;
+    oss << std::put_time(localTime, "%d/%m/%Y %H:%M");
+    return oss.str();
 }
 
 // Exports event reports for a specific user and channel to a JSON file
