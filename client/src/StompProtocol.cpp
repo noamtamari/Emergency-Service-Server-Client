@@ -71,10 +71,10 @@ void StompProtocol::handleMessage(Frame frame)
 {
     std::cout << "\033[34mhaneling...\033[0m" << std::endl;
     string report_frame = frame.getBody();
-    std::cout << "\033[34m" + frame.getBody() + "\033[0m" << std::endl;
+    std::cout << "\033[34m" + frame.getBody() + "\033[0m" << std::endl; // blue 
     const string receipt = frame.getHeader("receipt-id");
     cout << receipt << endl;
-    const string channel = report_receipts_to_channels.find(std::stoi(receipt))->second;
+    const string channel = frame.getHeader("destination");
     Event event(report_frame,channel);
     std::cout << "\033[34m EVENTTTTTTT" + event.get_channel_name() + "\033[0m"<< std::endl;
     cout << "this now is " << event.getEventOwnerUser() << endl;
@@ -311,7 +311,6 @@ void StompProtocol::handleReport(vector<string> read)
             {
                 receipts++;
                 receipt_respons.emplace(receipts, "reported");
-                report_receipts_to_channels.emplace(receipts,channel);
                 event.setEventOwnerUser((*connectionHandler).get_user_name());
                 cout << "this is " << (*connectionHandler).get_user_name() << endl;
                 Frame frame("SEND", {{"destination", channel}, {"receipt", to_string(receipts)}}, event.toString());
@@ -376,7 +375,7 @@ Frame StompProtocol::parseFrame(const string &input)
             string key = line.substr(0, colonPos);
             string value = line.substr(colonPos + 1);
             headers[key] = value;
-            cout <<  "\033[38;5;214m" <<  key << ": " << value << endl;
+            cout <<  "\033[38;5;214m" <<  key << ": " << value << endl; // Orange 
         }
         else{
             break;
@@ -550,7 +549,6 @@ void StompProtocol::printSummary(const std::unordered_map<std::string, std::unor
 
         // Iterate over each channel for the user
         for (const auto& channelEntry : userReports) {
-            cout << "EVEMTTTT " << endl;
             const std::string& channelName = channelEntry.first;
             const auto& events = channelEntry.second;
 
