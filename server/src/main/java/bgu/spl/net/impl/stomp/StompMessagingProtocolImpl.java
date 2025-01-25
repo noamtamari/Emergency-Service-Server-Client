@@ -42,6 +42,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
     }
 
     public Frame processingMsg(Frame msg) {
+        // System.out.println("Client Sent The following message :" + msg.toString());
         if (msg.getType().equals("SUBSCRIBE")) {
             return handleSubscribe(msg);
         }

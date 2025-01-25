@@ -20,7 +20,6 @@ private:
     unordered_map<int, int> receipt_subscriptionId = {}; // From receipt of subscription, to the subscriptionId of the user 
     unordered_map<int, string> receipt_channels = {}; // From receipt of subscription, to the channel subscribe to
     unordered_map<int, string> receipt_map = {}; // From receipt of command, to the command 
-    unordered_map<int,string> report_receipts_to_channels = {};
     unordered_map<string, unordered_map<string, vector<Event>>> summary = {};
     std::set<string> receipt_validator;
 

@@ -2,19 +2,19 @@ Teacher's server :
 1) mvn compile
 2) navigate to the target folder inside the server - cd /workspaces/SPL3ProjectFiles/server/target
 3) give a running permission to the server java file - chmod +x StompServer.jar
-4) run the following line - java -jar StompServer1.1.jar 7776 reactor/tpc
+4) run the following line - java -jar StompServer1.1.jar 7777 reactor/tpc
 
 Our Server:
 1)cd to server folder
 2)mvn clean compile
-3)mvn exec:java -Dexec.mainClass="bgu.spl.net.impl.stomp.StompServer"
+3)mvn exec:java -Dexec.mainClass="bgu.spl.net.impl.stomp.StompServer" -Dexec.args="7777 tpc"
+4)mvn exec:java -Dexec.mainClass="bgu.spl.net.impl.stomp.StompServer" -Dexec.args="7777 reactor"
 
 Teacher's client:
 1) in order to run the client - cd to the bin folder in the client folder - cd /workspaces/SPL3ProjectFiles/client/bin
 2) give a running permission to the client java file - chmod +x ./StompESClient
 3) run the file - ./StompESClient
 
-mvn exec:java -Dexec.mainClass="bgu.spl.net.impl.stomp.StompServer" 
 
 
 

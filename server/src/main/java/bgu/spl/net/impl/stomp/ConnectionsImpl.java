@@ -35,7 +35,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
             for (Integer connectionId : channelConnections.keySet()) {
                 ConnectionHandler<T> ch = connections.get(connectionId);
                 if (ch != null) {
-                    Frame frame = new Frame((Frame) msg, channelConnections.get(connectionId) , messageId++);
+                    Frame frame = new Frame((Frame) msg, channelConnections.get(connectionId) , messageId++, channel);
                     ch.send((T) frame);
                 }
             }

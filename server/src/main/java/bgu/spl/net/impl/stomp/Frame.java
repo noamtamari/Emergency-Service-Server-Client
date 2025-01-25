@@ -21,11 +21,12 @@ public class Frame {
         this.messageBody = messageBody;
     }
 
-    public Frame(Frame frame, String subscriptionId, int messageId) {
+    public Frame(Frame frame, String subscriptionId, int messageId, String channel) {
         this.type = frame.getType();
         this.headers = new LinkedHashMap<>();
         this.headers.put("subscription", subscriptionId);
         this.headers.put("message-id", String.valueOf(messageId));
+        this.headers.put("destination", channel);
         this.headers.put("receipt-id", frame.getHeader("receipt-id"));
         this.messageBody = frame.getMessageBody();
     }
@@ -98,6 +99,7 @@ public class Frame {
     public static Frame fromBytes(byte[] rawBytes) {
         // Convert the byte array to a string using UTF-8 encoding
         String rawFrame = new String(rawBytes, StandardCharsets.UTF_8);
+        System.out.println("fromBytes function - Server got the following message: " + rawFrame);
 
         // Split the message into lines
         String[] lines = rawFrame.split("\n");

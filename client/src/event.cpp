@@ -86,8 +86,8 @@ Event::Event(const std::string &frame_body, const std::string &channel): channel
             split_str(line, ':', lineArgs);
             string key = lineArgs.at(0);
             if (key[0] == ' '){
-                    key = key.substr(1);
-                }
+                key = key.substr(1);
+            }
             string val;
             if(lineArgs.size() == 2) {
                 val = lineArgs.at(1);
