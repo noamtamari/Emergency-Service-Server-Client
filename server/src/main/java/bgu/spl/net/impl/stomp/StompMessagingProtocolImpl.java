@@ -114,6 +114,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         if (destination != null) {
             if (connections.isSubscribed(connectionId, destination)) {
                 Frame frame = new Frame(("MESSAGE"), msg.getMessageBody());
+                frame.addHeader("receipt-id", msg.getHeader("receipt"));
                 connections.send(destination, frame);
             } else {
                 return errorFrame("User not subscribed to this channel", msg);

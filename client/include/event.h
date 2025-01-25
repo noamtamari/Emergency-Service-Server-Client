@@ -24,7 +24,7 @@ private:
 
 public:
     Event(std::string channel_name, std::string city, std::string name, int date_time, std::string description, std::map<std::string, std::string> general_information);
-    Event(const std::string & frame_body);
+    Event(const std::string & frame_body, const std::string &channel);
     virtual ~Event();
     void setEventOwnerUser(std::string setEventOwnerUser);
     const std::string &getEventOwnerUser() const;

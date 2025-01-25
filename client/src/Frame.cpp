@@ -78,6 +78,8 @@ Frame Frame::fromString(const std::string& rawFrame) {
         }
         std::string key = line.substr(0, colonPos);
         std::string value = line.substr(colonPos + 1);
+        if (value[0] == ' ')
+        std::string value = value.substr(1,value.length() + 1);
         hdrs[key] = value;
     }
 

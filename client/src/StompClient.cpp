@@ -99,6 +99,13 @@ int main(int argc, char *argv[])
             cout << "Starting server listener" << endl;
             serverThread = std::thread(serverListner, std::ref(*connectionHandler), std::ref(*stompProtocol), std::ref(running));
         }
+        // if (stompProtocol != nullptr && !stompProtocol->isConnected()){
+        //     cout << "logout" << endl;
+        //     delete stompProtocol;
+        //     delete connectionHandler;
+        //     StompProtocol *stompProtocol = nullptr;
+        //     ConnectionHandler *connectionHandler = nullptr;
+        // }
         // delete both stomp protocol and connecntion hanler
         if (read[0] == "logout")
         {

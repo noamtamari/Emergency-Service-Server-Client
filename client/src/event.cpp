@@ -10,15 +10,6 @@
 
 #include "../include/keyboardInput.h"
 
-// Splits a string by a delimiter and populates the result into a vector
-void split_str(const std::string& input, char delimiter, std::vector<std::string>& output) {
-    std::stringstream tokenStream(input);
-    std::string token;
-    while (std::getline(tokenStream, token, delimiter)) {
-        output.push_back(token);
-    }
-}
-
 using namespace std;
 using json = nlohmann::json;
 
@@ -31,6 +22,15 @@ Event::Event(std::string channel_name, std::string city, std::string name, int d
 
 Event::~Event()
 {
+}
+
+// Splits a string by a delimiter and populates the result into a vector
+void split_str(const std::string& input, char delimiter, std::vector<std::string>& output) {
+    std::stringstream tokenStream(input);
+    std::string token;
+    while (std::getline(tokenStream, token, delimiter)) {
+        output.push_back(token);
+    }
 }
 
 void Event::setEventOwnerUser(std::string setEventOwnerUser) {
@@ -71,7 +71,7 @@ const std::string &Event::get_description() const
     return this->description;
 }
 
-Event::Event(const std::string &frame_body): channel_name(""), city(""), 
+Event::Event(const std::string &frame_body, const std::string &channel): channel_name(channel), city(""), 
                                              name(""), date_time(0), description(""), general_information(),
                                              eventOwnerUser("")
 {
@@ -85,15 +85,18 @@ Event::Event(const std::string &frame_body): channel_name(""), city(""),
         if(line.find(':') != string::npos) {
             split_str(line, ':', lineArgs);
             string key = lineArgs.at(0);
+            if (key[0] == ' '){
+                    key = key.substr(1);
+                }
             string val;
             if(lineArgs.size() == 2) {
                 val = lineArgs.at(1);
+                if (val[0] == ' '){
+                    val = val.substr(1);
+                }
             }
             if(key == "user") {
                 eventOwnerUser = val;
-            }
-            if(key == "channel name") {
-                channel_name = val;
             }
             if(key == "city") {
                 city = val;
@@ -116,7 +119,7 @@ Event::Event(const std::string &frame_body): channel_name(""), city(""),
             }
 
             if(inGeneralInformation) {
-                general_information_from_string[key.substr(1)] = val;
+                general_information_from_string[key] = val;
             }
         }
     }

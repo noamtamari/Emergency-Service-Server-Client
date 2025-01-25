@@ -20,6 +20,7 @@ private:
     unordered_map<int, int> receipt_subscriptionId = {}; // From receipt of subscription, to the subscriptionId of the user 
     unordered_map<int, string> receipt_channels = {}; // From receipt of subscription, to the channel subscribe to
     unordered_map<int, string> receipt_map = {}; // From receipt of command, to the command 
+    unordered_map<int,string> report_receipts_to_channels = {};
     unordered_map<string, unordered_map<string, vector<Event>>> summary = {};
     std::set<string> receipt_validator;
 
@@ -42,5 +43,6 @@ public:
     // Frame parseFrame(const string& input);
     const string summerize_description(const string &string);
     const string epoch_to_date(const string &date_and_time);
-    void exportEventsToFile(const string& channel,const string& user, const string& filename);
+    void exportEventsToFile(const string &channel,const string &user,const string &filename);
+    void printSummary(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Event>>>& summary);
 };

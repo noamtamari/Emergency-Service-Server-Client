@@ -26,6 +26,7 @@ public class Frame {
         this.headers = new LinkedHashMap<>();
         this.headers.put("subscription", subscriptionId);
         this.headers.put("message-id", String.valueOf(messageId));
+        this.headers.put("receipt-id", frame.getHeader("receipt-id"));
         this.messageBody = frame.getMessageBody();
     }
 
@@ -65,8 +66,8 @@ public class Frame {
             frameString.append(key).append(":").append(headers.get(key)).append("\n");
         }
 
-        // // End headers with a blank line
-        // frameString.append("\n");
+        // End headers with a blank line
+        frameString.append("\n");
 
         // Append the message body (if exists) and the null terminator
         if (!messageBody.isEmpty()) {
@@ -84,9 +85,6 @@ public class Frame {
         for (String key : headers.keySet()) {
             frameString.append(key).append(":").append(headers.get(key)).append("\n");
         }
-
-        // // End headers with a blank line
-        // frameString.append("\n");
 
         // Append the message body (if exists) and the null terminator
         if (!messageBody.isEmpty()) {
