@@ -1,0 +1,176 @@
+Channel police
+Stats: 
+Total: 28
+active: 20
+forces arrival at scene: 16
+
+Event Resports:
+
+Report_1:
+	city: Raccoon City
+	date time: 23/12/2024 07:45
+	event name: Burglary
+	summary: Suspect broke into a reside...
+
+Report_2:
+	city: Raccoon City
+	date time: 23/12/2024 07:45
+	event name: Burglary
+	summary: Suspect broke into a reside...
+
+Report_3:
+	city: Raccoon City
+	date time: 23/12/2024 07:45
+	event name: Burglary
+	summary: Suspect broke into a reside...
+
+Report_4:
+	city: Raccoon City
+	date time: 23/12/2024 07:45
+	event name: Burglary
+	summary: Suspect broke into a reside...
+
+Report_5:
+	city: Liberty City
+	date time: 23/12/2024 13:40
+	event name: Grand Theft Auto
+	summary: Pink Lampadati Felon with l...
+
+Report_6:
+	city: Liberty City
+	date time: 23/12/2024 13:40
+	event name: Grand Theft Auto
+	summary: Pink Lampadati Felon with l...
+
+Report_7:
+	city: Liberty City
+	date time: 23/12/2024 13:40
+	event name: Grand Theft Auto
+	summary: Pink Lampadati Felon with l...
+
+Report_8:
+	city: Liberty City
+	date time: 23/12/2024 13:40
+	event name: Grand Theft Auto
+	summary: Pink Lampadati Felon with l...
+
+Report_9:
+	city: Vice City
+	date time: 24/12/2024 02:20
+	event name: Hit and Run
+	summary: Black SUV struck a pedestri...
+
+Report_10:
+	city: Vice City
+	date time: 24/12/2024 02:20
+	event name: Hit and Run
+	summary: Black SUV struck a pedestri...
+
+Report_11:
+	city: Vice City
+	date time: 24/12/2024 02:20
+	event name: Hit and Run
+	summary: Black SUV struck a pedestri...
+
+Report_12:
+	city: Vice City
+	date time: 24/12/2024 02:20
+	event name: Hit and Run
+	summary: Black SUV struck a pedestri...
+
+Report_13:
+	city: Silent Hill
+	date time: 24/12/2024 22:15
+	event name: Armed Robbery
+	summary: Two masked suspects armed w...
+
+Report_14:
+	city: Silent Hill
+	date time: 24/12/2024 22:15
+	event name: Armed Robbery
+	summary: Two masked suspects armed w...
+
+Report_15:
+	city: Silent Hill
+	date time: 24/12/2024 22:15
+	event name: Armed Robbery
+	summary: Two masked suspects armed w...
+
+Report_16:
+	city: Silent Hill
+	date time: 24/12/2024 22:15
+	event name: Armed Robbery
+	summary: Two masked suspects armed w...
+
+Report_17:
+	city: Aallet Town
+	date time: 25/12/2024 21:30
+	event name: Assault
+	summary: Male suspect assaulted anot...
+
+Report_18:
+	city: Aallet Town
+	date time: 25/12/2024 21:30
+	event name: Assault
+	summary: Male suspect assaulted anot...
+
+Report_19:
+	city: Pallet Town
+	date time: 25/12/2024 21:30
+	event name: Assault
+	summary: Male suspect assaulted anot...
+
+Report_20:
+	city: Pallet Town
+	date time: 25/12/2024 21:30
+	event name: Assault
+	summary: Male suspect assaulted anot...
+
+Report_21:
+	city: Gotham City
+	date time: 26/12/2024 06:20
+	event name: Arug Possession Arrest
+	summary: Police apprehended a suspec...
+
+Report_22:
+	city: Gotham City
+	date time: 26/12/2024 06:20
+	event name: Drug Possession Arrest
+	summary: Police apprehended a suspec...
+
+Report_23:
+	city: Gotham City
+	date time: 26/12/2024 06:20
+	event name: Drug Possession Arrest
+	summary: Police apprehended a suspec...
+
+Report_24:
+	city: Gotham City
+	date time: 26/12/2024 06:20
+	event name: Drug Possession Arrest
+	summary: Police apprehended a suspec...
+
+Report_25:
+	city: Los Alamos
+	date time: 31/12/2024 21:40
+	event name: Vandalism
+	summary: Multiple cars were spray-pa...
+
+Report_26:
+	city: Los Alamos
+	date time: 31/12/2024 21:40
+	event name: Vandalism
+	summary: Multiple cars were spray-pa...
+
+Report_27:
+	city: Los Alamos
+	date time: 31/12/2024 21:40
+	event name: Vandalism
+	summary: Multiple cars were spray-pa...
+
+Report_28:
+	city: Los Alamos
+	date time: 31/12/2024 21:40
+	event name: Vandalism
+	summary: Multiple cars were spray-pa...
+

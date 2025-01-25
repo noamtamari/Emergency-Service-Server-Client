@@ -20,9 +20,7 @@ Event::Event(std::string channel_name, std::string city, std::string name, int d
 {
 }
 
-Event::~Event()
-{
-}
+Event::~Event(){}
 
 // Splits a string by a delimiter and populates the result into a vector
 void split_str(const std::string& input, char delimiter, std::vector<std::string>& output) {
@@ -85,15 +83,20 @@ Event::Event(const std::string &frame_body, const std::string &channel): channel
         if(line.find(':') != string::npos) {
             split_str(line, ':', lineArgs);
             string key = lineArgs.at(0);
+            cout << "key is:" << key << endl;
             if (key[0] == ' '){
                 key = key.substr(1);
             }
             string val;
             if(lineArgs.size() == 2) {
                 val = lineArgs.at(1);
+                cout << "val is:" << val << endl;
                 if (val[0] == ' '){
                     val = val.substr(1);
                 }
+            }
+            if (val[val.size()-1] == '\n'){
+                cout << "TRUEEE" << endl;
             }
             if(key == "user") {
                 eventOwnerUser = val;
@@ -112,12 +115,17 @@ Event::Event(const std::string &frame_body, const std::string &channel): channel
                 continue;
             }
             else if(key == "description") {
+                cout << " I Know here" << endl;
+                inGeneralInformation = false;
+
+                eventDescription = val + "\n";
                 while(getline(ss,line,'\n')) {
                     eventDescription += line + "\n";
+                    cout << eventDescription << endl;
                 }
                 description = eventDescription;
+                cout << description << endl;
             }
-
             if(inGeneralInformation) {
                 general_information_from_string[key] = val;
             }

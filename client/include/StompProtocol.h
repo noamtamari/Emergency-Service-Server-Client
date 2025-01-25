@@ -44,6 +44,7 @@ public:
     void handleReciept(Frame frame);
     Frame parseFrame(const std::string &frame);
     // Frame parseFrame(const string& input);
+    static bool eventComparator(const Event& e1, const Event& e2);
     const string summerize_description(const string &string);
     const string epoch_to_date(const string &date_and_time);
     void exportEventsToFile(const string &channel,const string &user,const string &filename);
