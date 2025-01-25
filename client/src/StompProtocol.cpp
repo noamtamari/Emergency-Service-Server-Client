@@ -71,10 +71,10 @@ void StompProtocol::handleMessage(Frame frame)
 {
     std::cout << "\033[34mhaneling...\033[0m" << std::endl;
     string report_frame = frame.getBody();
-    std::cout << "\033[34m" + frame.getBody() + "\033[0m" << std::endl;
+    std::cout << "\033[34m" + frame.getBody() + "\033[0m" << std::endl;//blue
     const string receipt = frame.getHeader("receipt-id");
     cout << receipt << endl;
-    const string channel = report_receipts_to_channels.find(std::stoi(receipt))->second;
+    const string channel = report_receipts_to_channels.find(std::stoi(receipt))->second; //PROBLEM HERE
     Event event(report_frame,channel);
     std::cout << "\033[34m EVENTTTTTTT" + event.get_channel_name() + "\033[0m"<< std::endl;
     cout << "this now is " << event.getEventOwnerUser() << endl;
