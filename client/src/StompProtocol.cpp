@@ -21,9 +21,20 @@ using namespace std;
 // Initializes the protocol with the given ConnectionHandler
 StompProtocol::StompProtocol(ConnectionHandler *connectionHandler) : connectionHandler(connectionHandler) {}
 
+StompProtocol::~StompProtocol()
+{
+}
+
 bool StompProtocol::isConnected()
 {
+    std::lock_guard<std::mutex> lock(lock_connection);
     return connected;
+}
+
+void StompProtocol::setConnected(bool status)
+{
+    std::lock_guard<std::mutex> lock(lock_connection);
+    connected = status;
 }
 
 // Processes a server frame by delegating it to specific function based on the frame command
@@ -61,22 +72,18 @@ bool StompProtocol::processServerFrame(const std::string &frame)
 void StompProtocol::handleError(Frame frame)
 {
     // check somehow what failed, mabey we do need reveipt-id althoug i think we send it
-    cout << "ERROR FROM THE SERVER: \n "
-         << endl;
+    cout << "ERROR FROM THE SERVER: \n "<< frame.getBody() << endl;
+    setConnected(false);
 }
 
 // Handles message frames by adding events to the summary map, grouped by user and channel
 void StompProtocol::handleMessage(Frame frame)
 {
-    std::cout << "\033[34mhaneling...\033[0m" << std::endl;
     string report_frame = frame.getBody();
-    std::cout << "\033[34m" + frame.getBody() + "\033[0m" << std::endl; // blue
     const string receipt = frame.getHeader("receipt-id");
     cout << receipt << endl;
     const string channel = frame.getHeader("destination");
     Event event(report_frame, channel);
-    std::cout << "\033[34m EVENTTTTTTT" + event.get_channel_name() + "\033[0m" << std::endl;
-    cout << "this now is " << event.getEventOwnerUser() << endl;
     unordered_map<string, unordered_map<string, vector<Event>>>::iterator user_reported = summary.find(event.getEventOwnerUser()); // Map of the user previous reports for all channels
     // User did not report previously for any channel
     if (user_reported == summary.end())
@@ -103,13 +110,10 @@ void StompProtocol::handleMessage(Frame frame)
         // User already reported for event's channel
         else
         {
-            std::cout << "\033[31mThis text is red.\033[0m" << std::endl;
             vector<Event> &reports_vector = event_channel->second; // Use a reference here
             reports_vector.push_back(event);
-            cout << "\033[31m" + std::to_string(reports_vector.size()) + "\033[0m" << endl;
         }
     }
-    printSummary(summary);
 }
 
 // Handles connected frames, initializes the user's report map, and marks the client as connected
@@ -117,7 +121,6 @@ void StompProtocol::handleConnected(Frame frame)
 {
     unordered_map<string, vector<Event>> report_map = {};
     summary.emplace(connectionHandler->get_user_name(), report_map);
-    connected = true;
 }
 
 // Processes receipt frames and performs actions based on receipt IDs
@@ -132,10 +135,6 @@ void StompProtocol::handleReciept(Frame frame)
     // Print output of receipt
     else
     {
-        // Print current output
-        std::cout << "\033[95m" + output->second + "\033[0m" << std::endl;
-        cout << "Reciept from server: " << receipt << endl;
-        receipt_respons.erase(std::stoi(receipt));
         // cout << output->second << endl;
         unordered_map<int, std::string>::iterator action_receipt = receipt_map.find(std::stoi(receipt));
         // Requierd further handling for the relevent receipt in the client : exit,join,logout
@@ -176,11 +175,14 @@ void StompProtocol::handleReciept(Frame frame)
             {
                 if (std::to_string(logout_reciept) == receipt)
                 {
-                    connected = false;
+                    setConnected(false);
                 }
             }
             receipt_map.erase(std::stoi(receipt));
         }
+        // Print current output
+        std::cout << "\033[95m" + output->second + "\033[0m" << std::endl;
+        receipt_respons.erase(std::stoi(receipt));
     }
 }
 
@@ -216,7 +218,6 @@ void StompProtocol::processUserInput(vector<string> read)
 // Handles the login command by sending a CONNECT frame to the server
 void StompProtocol::handleLogin(vector<string> read)
 {
-    std::cout << "login succesful" << std::endl;
     receipts++;
     receipt_respons.emplace(receipts, "login succesful");
     Frame frame("CONNECT", {{"accept-version", "1.2"}, {"receipt", std::to_string(receipts)}, {"login", read[2]}, {"passcode", read[3]}}, "");
@@ -319,16 +320,6 @@ void StompProtocol::handleReport(vector<string> read)
                 cout << "this is " << (*connectionHandler).get_user_name() << endl;
                 Frame frame("SEND", {{"destination", channel}, {"receipt", to_string(receipts)}}, event.toString());
                 string send = frame.toString();
-                // cout << "im going to send this message to the server : " << send << endl;
-                // cout << "message length: " << send.length() << endl;
-                // for (int i = 0;; ++i)
-                // {
-                //     if (send[i] == '\0')
-                //     {
-                //         std::cout << "Null character '\\0' found at index: " << i << std::endl;
-                //         break;
-                //     }
-                // }
                 (*connectionHandler).sendLine(send);
             }
         }
@@ -390,7 +381,7 @@ Frame StompProtocol::parseFrame(const string &input)
             string key = line.substr(0, colonPos);
             string value = line.substr(colonPos + 1);
             headers[key] = value;
-            cout << "\033[38;5;214m" << key << ": " << value << endl; // Orange
+            //cout << "\033[38;5;214m" << key << ": " << value << endl; // Orange
         }
         else
         {
@@ -566,7 +557,6 @@ void StompProtocol::printSummary(const std::unordered_map<std::string, std::unor
     for (const auto &userEntry : summary)
     {
         cout << std::to_string(summary.size()) << endl;
-        cout << "rounddddd" << endl;
         const std::string &username = userEntry.first;
         const auto &userReports = userEntry.second;
 

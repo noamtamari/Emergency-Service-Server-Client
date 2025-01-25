@@ -23,7 +23,7 @@ bool isValidHostPort(const std::string &input);
 
 int main(int argc, char *argv[])
 {
-    bool connected = false;
+    // bool connected = false;
     StompProtocol *stompProtocol = nullptr;
     ConnectionHandler *connectionHandler = nullptr;
     std::thread serverThread;
@@ -31,11 +31,12 @@ int main(int argc, char *argv[])
     bool running = true;
     while (running)
     {
+        cout << "In the while " << endl;
         // how do you know this
         std::string line;
         std::getline(std::cin, line);
         vector<string> read = keyboardInput::parseArguments(line);
-        if (stompProtocol == nullptr && read[0] == "login")
+        if (connectionHandler == nullptr && read[0] == "login")
         {
             if (read.size() != 4)
             {
@@ -44,7 +45,6 @@ int main(int argc, char *argv[])
             }
             else
             {
-                cout << "login Part" << endl;
                 // std::regex pattern(R"(^[a-zA-Z0-9]+:[a-zA-Z0-9]+$)");
                 bool hostPort = isValidHostPort(read[1]);
                 if (!hostPort)
@@ -72,6 +72,12 @@ int main(int argc, char *argv[])
                     {
                         stompProtocol = new StompProtocol(connectionHandler);
                         stompProtocol->handleLogin(read);
+                        if (connectionHandler != nullptr && stompProtocol != nullptr && !stompProtocol->isConnected())
+                        {
+                            stompProtocol->setConnected(true);
+                            cout << "Starting server listener" << endl;
+                            serverThread = std::thread(serverListner, std::ref(*connectionHandler), std::ref(*stompProtocol), std::ref(running));
+                        }
                     }
                 }
             }
@@ -89,37 +95,29 @@ int main(int argc, char *argv[])
         // Connection was made and user tries to preform command that is not login
         else
         {
+            cout << "User input: " << read[0] << endl;
             if (stompProtocol != nullptr)
             {
                 stompProtocol->processUserInput(read);
             }
         }
-        if (connectionHandler != nullptr && stompProtocol != nullptr && !stompProtocol->isConnected())
-        {
-            cout << "Starting server listener" << endl;
-            serverThread = std::thread(serverListner, std::ref(*connectionHandler), std::ref(*stompProtocol), std::ref(running));
-        }
-        // if (stompProtocol != nullptr && !stompProtocol->isConnected()){
-        //     cout << "logout" << endl;
-        //     delete stompProtocol;
-        //     delete connectionHandler;
-        //     StompProtocol *stompProtocol = nullptr;
-        //     ConnectionHandler *connectionHandler = nullptr;
-        // }
         // delete both stomp protocol and connecntion hanler
-        if (read[0] == "logout")
+        if (stompProtocol != nullptr && !stompProtocol->isConnected() | read[0] == "logout")
         {
+            cout << "logouting!!! " << endl;
             serverThread.join();
         }
+        if (stompProtocol != nullptr && !stompProtocol->isConnected()){
+            delete stompProtocol;
+            stompProtocol = nullptr;
+
+            delete connectionHandler;      // Free the allocated memory and close the connection
+            connectionHandler = nullptr; 
+        }
+        if (read[0] == "close"){
+            running = false;
+        }
     }
-    // if (stompProtocol != nullptr)
-    // {
-    //     delete stompProtocol;
-    // }
-    // if (connectionHandler != nullptr)
-    // {
-    //     delete connectionHandler;
-    // }
 
     cout << "Exiting main" << endl;
     return 0;
@@ -128,31 +126,18 @@ int main(int argc, char *argv[])
 void serverListner(ConnectionHandler &conncectionHandler, StompProtocol &stompProtocol, bool &running)
 {
     std::list<string> msgs;
-    while (running)
+    while (stompProtocol.isConnected())
     {
-        // cout << "Server listener running" << endl;
+        cout << "Server listener running" << endl;
         string serverMessage;
         bool gotMessage = conncectionHandler.getLine(serverMessage);
-        if (gotMessage && !serverMessage.empty()){
+        if (gotMessage && !serverMessage.empty())
+        {
             cout << "Server message: " << serverMessage << endl;
             stompProtocol.processServerFrame(serverMessage);
         }
-        // if (serverMessage.empty()){
-        //     cout << "blaaaaaaaaaaaaa" << endl;
-        // }
-        //     stompProtocol.processServerFrame(msgs.front());
-        // if (gotMessage && !serverMessage.empty())
-        // {
-        //     msgs.push_back(serverMessage);
-        // }
-        // if (!msgs.empty())
-        // {
-        //     cout << "Server message: " << msgs.front() << endl;
-        //     stompProtocol.processServerFrame(msgs.front());
-        //     msgs.pop_front();
-        // }
-        // more things
     }
+    cout << "Server listener exiting" << endl;
 }
 
 bool isValidHostPort(const std::string &input)

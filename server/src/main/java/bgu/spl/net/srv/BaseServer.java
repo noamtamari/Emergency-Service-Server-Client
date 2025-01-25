@@ -57,8 +57,9 @@ public abstract class BaseServer<T> implements Server<T> {
 
     @Override
     public void close() throws IOException {
-		if (sock != null)
+		if (sock != null){
 			sock.close();
+        }
     }
 
     protected abstract void execute(BlockingConnectionHandler<T>  handler);

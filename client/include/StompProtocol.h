@@ -4,6 +4,7 @@
 #include "../include/Frame.h"
 #include "../include/Event.h"
 #include <set>
+#include <mutex>
 
 // TODO: implement the STOMP protocol
 class StompProtocol
@@ -13,6 +14,7 @@ private:
     int receipts = 0;
     int subscription_id = 0;
     int logout_reciept = -1;
+    std::mutex lock_connection;
     bool connected = false;
     unordered_map<string, int> channel_subscription = {}; // From channel to subscription id
     unordered_map<int, string> unsubscribe_channel = {}; // From receipt of exit to subscription id
@@ -25,7 +27,9 @@ private:
 
 public:
     StompProtocol(ConnectionHandler *connectionHandler);
+    virtual ~StompProtocol();
     bool isConnected();
+    void setConnected(bool status);
     bool processServerFrame(const string &frame);
     void processUserInput(vector<string> read);
     void handleLogin(vector<string> read);

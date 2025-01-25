@@ -56,6 +56,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
 
     @Override
     public void close() throws IOException {
+        System.out.println("Server Socket cloesed");
         connected = false;
         sock.close();
     }
@@ -75,12 +76,12 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
         if (((Frame) msg).getType().equals("ERROR")) {
             connections.disconnect(connectionId);
         }
-        if (protocol.shouldTerminate()) {
-            try {
-                close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        // if (protocol.shouldTerminate()) {
+        //     try {
+        //         close();
+        //     } catch (IOException e) {
+        //         e.printStackTrace();
+        //     }
+        // }
     }
 }

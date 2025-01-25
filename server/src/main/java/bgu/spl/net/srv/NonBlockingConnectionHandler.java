@@ -98,7 +98,6 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
                     writeQueue.remove();
                 }
             } catch (IOException ex) {
-                System.out.println("DFSDFSDFSDFSDFSDFSDFSDF");
                 ex.printStackTrace();
                 close();
             }
@@ -135,8 +134,8 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         if (((Frame) msg).getType().equals("ERROR")) {
             connections.disconnect(connectionId);
         }
-        if (protocol.shouldTerminate()){
-            close();
-        }
+        // if (protocol.shouldTerminate()){
+        //     close();
+        // }
     }
 }

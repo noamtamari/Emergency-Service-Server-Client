@@ -60,6 +60,7 @@ public class UserHandler {
     // Method to make user loged out
     public void removeActiveUser(int connectionId) {
         String username = activeUsersByConnectionId.remove(connectionId);
-        activeUsersByUserName.remove(username);
+        if (username != null)
+            activeUsersByUserName.remove(username);
     }
 }
