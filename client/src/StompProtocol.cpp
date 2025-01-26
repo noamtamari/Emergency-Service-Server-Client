@@ -21,9 +21,7 @@ using namespace std;
 // Initializes the protocol with the given ConnectionHandler
 StompProtocol::StompProtocol(ConnectionHandler *connectionHandler) : connectionHandler(connectionHandler) {}
 
-StompProtocol::~StompProtocol()
-{
-}
+StompProtocol::~StompProtocol(){}
 
 bool StompProtocol::isConnected()
 {
@@ -41,11 +39,7 @@ void StompProtocol::setConnected(bool status)
 bool StompProtocol::processServerFrame(const std::string &frame)
 {
     Frame newFrame = parseFrame(frame);
-    std::cout << "\033[32m M " + newFrame.getBody() + "\033[0m" << std::endl;
-    // cout << "Frame to proccess: " << newFrame.toString() << endl;
-    // cout << "Command to proccess: " << newFrame.getCommand() << endl;
     const string command = newFrame.getCommand();
-    std::cout << "\033[95m" + command + "\033[0m" << std::endl;
     if (command == "RECEIPT")
     {
         handleReciept(newFrame);
@@ -72,8 +66,10 @@ bool StompProtocol::processServerFrame(const std::string &frame)
 // Handles error frames from the server
 void StompProtocol::handleError(Frame frame)
 {
-    // check somehow what failed, mabey we do need reveipt-id althoug i think we send it
-    cout << "ERROR FROM THE SERVER: \n " << frame.getBody() << endl;
+    // check somehow what failed, mabey we do nee
+    const string message = frame.getHeader("The message");
+    std::cout << "\033[31mERROR FROM THE SERVER: \n \033[0m" << endl;
+    std::cout << "\033[31m" + frame.getBody() + "\033[0m" << endl;
     setConnected(false);
 }
 
@@ -82,7 +78,7 @@ void StompProtocol::handleMessage(Frame frame)
 {
     string report_frame = frame.getBody();
     const string receipt = frame.getHeader("receipt-id");
-    cout << receipt << endl;
+    std::cout << receipt <<  std::endl;
     const string channel = frame.getHeader("destination");
     Event event(report_frame, channel);
     unordered_map<string, unordered_map<string, vector<Event>>>::iterator user_reported = summary.find(event.getEventOwnerUser()); // Map of the user previous reports for all channels
@@ -94,7 +90,7 @@ void StompProtocol::handleMessage(Frame frame)
         reports_for_channel_vector.push_back(event);
         report_map.emplace(event.get_channel_name(), reports_for_channel_vector);
         summary.emplace(event.getEventOwnerUser(), report_map);
-        cout << event.getEventOwnerUser() << endl;
+        std::cout << event.getEventOwnerUser() << endl;
     }
     // User already reported previously
     else
@@ -131,12 +127,11 @@ void StompProtocol::handleReciept(Frame frame)
     std::unordered_map<int, std::string>::iterator output = receipt_respons.find(std::stoi(receipt));
     if (output == receipt_respons.end())
     {
-        cout << "receipt got lost" << endl;
+        std::cout << "receipt got lost" << std::endl;
     }
     // Print output of receipt
     else
     {
-        // cout << output->second << endl;
         unordered_map<int, std::string>::iterator action_receipt = receipt_map.find(std::stoi(receipt));
         // Requierd further handling for the relevent receipt in the client : exit,join,logout
         if (action_receipt != receipt_map.end())
@@ -182,7 +177,7 @@ void StompProtocol::handleReciept(Frame frame)
             receipt_map.erase(std::stoi(receipt));
         }
         // Print current output
-        std::cout << "\033[95m" + output->second + "\033[0m" << std::endl;
+        std::cout << "\033[32m"+  output->second +"\033[0m" << std::endl;
         receipt_respons.erase(std::stoi(receipt));
     }
 }
@@ -212,7 +207,7 @@ void StompProtocol::processUserInput(vector<string> read)
     }
     else
     {
-        cout << "Illegal command, please try a different one" << endl;
+        std::cout << "\033[95mIllegal command, please try a different one\033[0m" << std::endl;
     }
 }
 
@@ -221,7 +216,7 @@ void StompProtocol::handleLogin(vector<string> read)
 {
     receipts++;
     receipt_respons.emplace(receipts, "login succesful");
-    Frame frame("CONNECT", {{"accept-version", "1.2"}, {"receipt", std::to_string(receipts)}, {"login", read[2]}, {"passcode", read[3]}}, "");
+    Frame frame("CONNECT", {{"accept-version", "1.2"}, {"host", "stomp.cs.bgu.ac.il"},{"receipt", std::to_string(receipts)}, {"login", read[2]}, {"passcode", read[3]}}, "");
     string send = frame.toString();
     (*connectionHandler).sendLine(send);
 }
@@ -231,7 +226,7 @@ void StompProtocol::handleLogout(vector<string> read)
 {
     if (read.size() != 1)
     {
-        std::cout << "" << std::endl;
+        std::cout << "\033[95mlogout command needs 0 arg\033[0m" << std::endl;
     }
     else
     {
@@ -251,7 +246,7 @@ void StompProtocol::handleJoin(vector<string> read)
 {
     if (read.size() != 2)
     {
-        cout << "join command needs 1 args: {channel_name}" << endl;
+        std::cout << "\033[95mjoin command needs 1 args: {channel_name}\033[0m" << std::endl;
     }
     else
     {
@@ -273,7 +268,7 @@ void StompProtocol::handleExit(vector<string> read)
 {
     if (read.size() != 2)
     {
-        std::cout << "exit command needs 1 args: {channel}" << std::endl;
+        std::cout << "\033[95mexit command needs 1 args: {channel}\033[0m" << std::endl;
     }
     else
     {
@@ -283,7 +278,7 @@ void StompProtocol::handleExit(vector<string> read)
         // User is not subscribed to the specified channel
         if (channel_subscriptionId == channel_subscription.end())
         {
-            std::cout << "You tried to unsubscribe from a channel you are not subscribed" + read[1] << endl;
+            std::cout << "\033[95myou are not subscribed to channel\033[0m" << std::endl;
         }
         else
         {
@@ -304,7 +299,7 @@ void StompProtocol::handleReport(vector<string> read)
 {
     if (read.size() != 2)
     {
-        cout << "report command needs 1 args: {file}" << endl;
+        std::cout << "\033[95mreport command needs 1 args: {file}\033[0m" << std::endl;
     }
     else
     {
@@ -320,7 +315,7 @@ void StompProtocol::handleReport(vector<string> read)
                 receipts++;
                 receipt_respons.emplace(receipts, "reported");
                 event.setEventOwnerUser((*connectionHandler).get_user_name());
-                cout << "this is " << (*connectionHandler).get_user_name() << endl;
+                std::cout << "this is " << (*connectionHandler).get_user_name() << endl;
                 Frame frame("SEND", {{"destination", channel}, {"receipt", to_string(receipts)}}, event.toString());
                 string send = frame.toString();
                 (*connectionHandler).sendLine(send);
@@ -338,7 +333,7 @@ void StompProtocol::handleSummary(vector<string> read)
 {
     if (read.size() != 4)
     {
-        std::cout << "summary command needs 3 args: {channel_name} {user} {file}" << std::endl;
+        std::cout << "\033[95summary command needs 3 args: {channel_name} {user} {file}\033[0m" << std::endl;
     }
     else
     {
@@ -347,7 +342,7 @@ void StompProtocol::handleSummary(vector<string> read)
         unordered_map<string, vector<Event>>::iterator was_subscribed = (channel_reported->second).find(read[1]);
         if (was_subscribed == (channel_reported->second).end())
         {
-            cout << "you are not subscribed to channel " + read[1] << endl;
+            std::cout << "you are not subscribed to channel " + read[1] << endl;
         }
         // else
         {
@@ -384,7 +379,6 @@ Frame StompProtocol::parseFrame(const string &input)
             string key = line.substr(0, colonPos);
             string value = line.substr(colonPos + 1);
             headers[key] = value;
-            cout << "\033[38;5;214m" << key << ": " << value << endl; // Orange
         }
         else
         {
@@ -464,7 +458,6 @@ void StompProtocol::exportEventsToFile(const string &channel, const string &user
         {
             map<string, string> general_info = event.get_general_information();
             const string active = " active";
-            cout << "active" << (general_info.find(active)->second) << endl;
             if ((event.get_general_information()).find(active)->second == "true")
             {
                 true_active++;
@@ -532,7 +525,7 @@ void StompProtocol::printSummary(const std::unordered_map<std::string, std::unor
     // Iterate over each user in the summary map
     for (const auto &userEntry : summary)
     {
-        cout << std::to_string(summary.size()) << endl;
+        std::cout << std::to_string(summary.size()) << endl;
         const std::string &username = userEntry.first;
         const auto &userReports = userEntry.second;
 

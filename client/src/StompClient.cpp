@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
             {
                 if (read.size() != 4)
                 {
-                    cout << "login command needs 3 args: {host:port} {user} {password}" << endl;
+                    std::cout << "\033[95login command needs 3 args: {host:port} {user} {password}\033[0m" << std::endl;
                     continue;
                 }
                 else
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
                     bool hostPort = isValidHostPort(read[1]);
                     if (!hostPort)
                     {
-                        std::cout << "host:port are illegal" << std::endl;
+                        std::cout << "\033[95mhost:port are illegal\033[0m" << std::endl;
                     }
                     else
                     {
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
                         // see what happens with the connection handler and delete? try again , etc
                         if (!connectionHandler->connect())
                         {
-                            std::cout << "Cannot connect to the server" << std::endl;
+                            std::cout << "\033[95mCannot connect to the server\033[0m" << std::endl;
                         }
                         else
                         {
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
                             if (connectionHandler != nullptr && stompProtocol != nullptr && !stompProtocol->isConnected())
                             {
                                 stompProtocol->setConnected(true);
-                                cout << "Starting server listener" << endl;
+                                //cout << "Starting server listener" << endl;
                                 serverThread = std::thread(serverListner, std::ref(*connectionHandler), std::ref(*stompProtocol), std::ref(running));
                             }
                         }
@@ -101,12 +101,12 @@ int main(int argc, char *argv[])
             // Connection was not made and user wrote command that is not login
             else if (stompProtocol == nullptr && read[0] != "login")
             {
-                cout << "please login first" << std::endl;
+                std::cout << "\033[95mplease login first\033[0m" << std::endl;
             }
             // Connection was made but user tried to login again
             else if (stompProtocol != nullptr && read[0] == "login")
             {
-                cout << "user already logedin " << std::endl;
+                std::cout << "\033[95mThe client is already logged in\033[0m" << std::endl;
             }
             // Connection was made and user tries to preform command that is not login
             else
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             // delete both stomp protocol and connecntion hanler
-            if ((stompProtocol != nullptr && !stompProtocol->isConnected()) || (read.size() != 1 && read[0] == "logout"))
+            if ((stompProtocol != nullptr && !stompProtocol->isConnected()) || (read.size()==1 && read[0] == "logout"))
             {
                 cout << "logouting!!! " << endl;
                 serverThread.join();
@@ -148,7 +148,7 @@ void serverListner(ConnectionHandler &conncectionHandler, StompProtocol &stompPr
         bool gotMessage = conncectionHandler.getLine(serverMessage);
         if (gotMessage && !serverMessage.empty())
         {
-            cout << "Server message: " << serverMessage << endl;
+            //cout << "Server message: " << serverMessage << endl;
             stompProtocol.processServerFrame(serverMessage);
         }
     }

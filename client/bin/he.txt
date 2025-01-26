@@ -16,7 +16,8 @@ Report_2:
 	city: Liberty City
 	date time: 23/12/2024 13:40
 	event name: Grand Theft Auto
-	summary: Pink Lampadati Felon with l...
+	summary: Pink 
+ Lampadati Felon with...
 
 Report_3:
 	city: Vice City
@@ -31,7 +32,7 @@ Report_4:
 	summary: Two masked suspects armed w...
 
 Report_5:
-	city: Aallet Town
+	city: Pallet Town
 	date time: 25/12/2024 21:30
 	event name: Assault
 	summary: Male suspect assaulted anot...
@@ -39,7 +40,7 @@ Report_5:
 Report_6:
 	city: Gotham City
 	date time: 26/12/2024 06:20
-	event name: Arug Possession Arrest
+	event name: Drug Possession Arrest
 	summary: Police apprehended a suspec...
 
 Report_7:
