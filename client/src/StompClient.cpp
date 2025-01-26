@@ -83,6 +83,8 @@ int main(int argc, char *argv[])
                         if (!connectionHandler->connect())
                         {
                             std::cout << "\033[95mCould not connect to the server\033[0m" << std::endl;
+                            delete connectionHandler; // Free the allocated memory and close the connection
+                            connectionHandler = nullptr;
                         }
                         else
                         {
@@ -91,7 +93,7 @@ int main(int argc, char *argv[])
                             if (connectionHandler != nullptr && stompProtocol != nullptr && !stompProtocol->isConnected())
                             {
                                 stompProtocol->setConnected(true);
-                                //cout << "Starting server listener" << endl;
+                                // cout << "Starting server listener" << endl;
                                 serverThread = std::thread(serverListner, std::ref(*connectionHandler), std::ref(*stompProtocol), std::ref(running));
                             }
                         }
@@ -99,7 +101,7 @@ int main(int argc, char *argv[])
                 }
             }
             // Connection was not made and user wrote command that is not login
-            else if (stompProtocol == nullptr && read[0] != "login")
+            else if (stompProtocol == nullptr && (read.size() == 0 || read[0] != "login"))
             {
                 std::cout << "\033[95mplease login first\033[0m" << std::endl;
             }
@@ -119,7 +121,7 @@ int main(int argc, char *argv[])
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             // delete both stomp protocol and connecntion hanler
-            if ((stompProtocol != nullptr && !stompProtocol->isConnected()) || (read.size()==1 && read[0] == "logout"))
+            if ((stompProtocol != nullptr && !stompProtocol->isConnected()) || (read.size() == 1 && read[0] == "logout"))
             {
                 cout << "logouting!!! " << endl;
                 serverThread.join();
@@ -148,7 +150,7 @@ void serverListner(ConnectionHandler &conncectionHandler, StompProtocol &stompPr
         bool gotMessage = conncectionHandler.getLine(serverMessage);
         if (gotMessage && !serverMessage.empty())
         {
-            //cout << "Server message: " << serverMessage << endl;
+            // cout << "Server message: " << serverMessage << endl;
             stompProtocol.processServerFrame(serverMessage);
         }
     }

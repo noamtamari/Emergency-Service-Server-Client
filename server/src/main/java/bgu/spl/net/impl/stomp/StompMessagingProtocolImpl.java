@@ -75,12 +75,12 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
                     connections.addToChannels(destination, connectionId, subscriptionId);
                 }
             } else {
-                return errorFrame("Destination illegal", msg);
+                return errorFrame("Illegal Destination", "The destination: '"+ destination + "' is illigal"  ,msg);
             }
         }
         // subscriptionId is illegal
         else {
-            return errorFrame("Client's id is illegal", msg);// add msg
+            return errorFrame("Client's subscription id is illegal", "You are trying to subscribe with illigal subscription Id" ,msg); 
         }
         return null;
     }
@@ -93,7 +93,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
             succseedUnsubscribe = connections.removeSubscription(subscriptionId, connectionId);
         }
         if (!succseedUnsubscribe) {
-            return errorFrame("You tried to unsubscribe from a channel you are not subscribe to", msg); // add msg
+            return errorFrame("Illigal user subscription id: ","You tried to unsubscribe from a channel you are not subscribe to", msg); // add msg
         }
         return null;
     }
@@ -115,13 +115,10 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         if (destination != null) {
             if (connections.isSubscribed(connectionId, destination)) {
                 Frame frame = new Frame(("MESSAGE"), msg.getMessageBody());
-                frame.addHeader("receipt-id", msg.getHeader("receipt"));
-                connections.send(destination, frame);
+                connections.send(destination, frame); // Send to every user that is subscribe to destionation
             } else {
-                return errorFrame("User not subscribed to this channel", msg);
+                return errorFrame("User not subscribed to this channel", "You are trying to report to channel "+ destination +" which you are not subscribed to. Please subscribe first", msg);
             }
-        } else {
-            return errorFrame("Destination illegal", msg);
         }
         return null;
 
@@ -133,7 +130,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         // User already logged in
         synchronized(userHandler){
         if (userInfo != null && userHandler.IsUserLogedIn(userInfo)) {
-            return errorFrame("User already logged in", msg);
+            return errorFrame("User already logged in", "The user " + userInfo + " is already connected from a different client" ,msg);
         }
             // User not logged in and user exists
             if (userInfo != null && userPasscode != null && userHandler.userExists(userInfo)
@@ -141,7 +138,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
                 boolean succseedLogin = userHandler.logInUser(userInfo, userPasscode, connectionId);
                 // User not logged in and user exists and password is wrong
                 if (!succseedLogin) {
-                    return errorFrame("Wrong password", msg);
+                    return errorFrame("Wrong password", userInfo+ "'s password is incorrect, please try to login again with the password of registration" , msg);
                 }
             }
             userHandler.addNewUser(userInfo, userPasscode, connectionId);
@@ -153,7 +150,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         return null;
     }
 
-    public Frame errorFrame(String message, Frame msg) {
+    public Frame errorFrame(String message, String detailedDescroption ,Frame msg) {
         Frame frame = new Frame("ERROR");
         String receipt = msg.getHeader("receipt");
         if (receipt == null) {
@@ -161,10 +158,10 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         } else {
             frame.addHeader("receipt-id",receipt);
         }
-        frame.addHeader("message", "malformed frame received");
+        frame.addHeader("message", message);
         String frameMsg = msg.stringMessage().replaceAll("\u0000", "");
         //frame.addHeader("The message", "\n" + "-----" + "\n" + frameMsg + "-----"+ "\n");
-        frame.setMessageBody("The message: \n" + "-----" + "\n" + frameMsg + "-----"+ "\n" + message);
+        frame.setMessageBody("The message: \n" + "-----" + "\n" + frameMsg + "-----"+ "\n" + detailedDescroption);
         synchronized(userHandler){
             UserHandler.getInstance().removeActiveUser(connectionId);
         }

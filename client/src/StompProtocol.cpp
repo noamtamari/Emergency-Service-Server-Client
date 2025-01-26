@@ -133,6 +133,7 @@ void StompProtocol::handleReciept(Frame frame)
     else
     {
         unordered_map<int, std::string>::iterator action_receipt = receipt_map.find(std::stoi(receipt));
+        bool print_now = true;
         // Requierd further handling for the relevent receipt in the client : exit,join,logout
         if (action_receipt != receipt_map.end())
         {
@@ -157,6 +158,7 @@ void StompProtocol::handleReciept(Frame frame)
                     receipt_subscriptionId.erase(std::stoi(receipt));
                     receipt_channels.erase(std::stoi(receipt));
                 }
+                receipt_map.erase(std::stoi(receipt));
             }
             // Reciept of exit
             if (command == "exit")
@@ -166,6 +168,7 @@ void StompProtocol::handleReciept(Frame frame)
                 {
                     channel_subscription.erase(channel->second);
                 }
+                receipt_map.erase(std::stoi(receipt));
             }
             if (command == "logout")
             {
@@ -173,12 +176,29 @@ void StompProtocol::handleReciept(Frame frame)
                 {
                     setConnected(false);
                 }
+                receipt_map.erase(std::stoi(receipt));
             }
-            receipt_map.erase(std::stoi(receipt));
+            if (command == "report"){
+                print_now = false;
+                unordered_map<int,int>::iterator receipt_counter = receipt_counter_map.find(std::stoi(receipt));
+                if (receipt_counter != receipt_counter_map.end()){
+                    int &reciept_count = receipt_counter->second;
+                    if (reciept_count == 2){
+                        receipt_map.erase(std::stoi(receipt));
+                        receipt_counter_map.erase(std::stoi(receipt));
+                    }
+                    else{
+                        reciept_count = reciept_count-1;
+                    }
+                }
+
+            }
         }
-        // Print current output
-        std::cout << "\033[32m"+  output->second +"\033[0m" << std::endl;
-        receipt_respons.erase(std::stoi(receipt));
+        if (print_now){
+            // Print current output
+            std::cout << "\033[32m"+  output->second +"\033[0m" << std::endl;
+            receipt_respons.erase(std::stoi(receipt));
+        }
     }
 }
 
@@ -230,7 +250,6 @@ void StompProtocol::handleLogout(vector<string> read)
     }
     else
     {
-        // connected = false;
         receipts++;
         receipt_map.emplace(receipts, "logout");
         receipt_respons.emplace(receipts, "Logged Out");
@@ -309,16 +328,22 @@ void StompProtocol::handleReport(vector<string> read)
             names_and_events information = parseEventsFile(read[1]); // Extract events from the file
             string channel = information.channel_name;
             vector<Event> &events = information.events;
+            receipts++;
+            int reciepts_count = 0;
+            receipt_respons.emplace(receipts, "reported");
             // Create a frame for each event and send it to the server
             for (Event &event : events)
             {
-                receipts++;
-                receipt_respons.emplace(receipts, "reported");
+                reciepts_count++;
                 event.setEventOwnerUser((*connectionHandler).get_user_name());
                 std::cout << "this is " << (*connectionHandler).get_user_name() << endl;
                 Frame frame("SEND", {{"destination", channel}, {"receipt", to_string(receipts)}}, event.toString());
                 string send = frame.toString();
                 (*connectionHandler).sendLine(send);
+            }
+            if (reciepts_count > 1){
+                receipt_map.emplace(receipts,"report");
+                receipt_counter_map.emplace(receipts,reciepts_count);
             }
         }
         catch (const std::exception &e)

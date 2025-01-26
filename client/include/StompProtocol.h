@@ -21,7 +21,8 @@ private:
     unordered_map<int, string> receipt_respons = {}; // From user's action's receipt to relevent output to the user when the server succseed to perform the user's action
     unordered_map<int, int> receipt_subscriptionId = {}; // From receipt of subscription, to the subscriptionId of the user 
     unordered_map<int, string> receipt_channels = {}; // From receipt of subscription, to the channel subscribe to
-    unordered_map<int, string> receipt_map = {}; // From receipt of command, to the command 
+    unordered_map<int, string> receipt_map = {}; // From receipt of command, to the command itself
+    unordered_map<int, int> receipt_counter_map= {}; // From receipt of command, to the command itself
     unordered_map<string, unordered_map<string, vector<Event>>> summary = {};
 
 public:
