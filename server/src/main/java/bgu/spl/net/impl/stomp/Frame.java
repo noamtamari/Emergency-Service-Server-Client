@@ -91,7 +91,7 @@ public class Frame {
         if (!messageBody.isEmpty()) {
             frameString.append(messageBody);
         }
-
+        frameString.append("\n");
         return frameString.toString();
     }
 

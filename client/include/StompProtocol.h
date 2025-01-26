@@ -14,7 +14,7 @@ private:
     int receipts = 0;
     int subscription_id = 0;
     int logout_reciept = -1;
-    std::mutex lock_connection;
+    std::mutex lock_connection= {};
     bool connected = false;
     unordered_map<string, int> channel_subscription = {}; // From channel to subscription id
     unordered_map<int, string> unsubscribe_channel = {}; // From receipt of exit to subscription id
@@ -23,11 +23,18 @@ private:
     unordered_map<int, string> receipt_channels = {}; // From receipt of subscription, to the channel subscribe to
     unordered_map<int, string> receipt_map = {}; // From receipt of command, to the command 
     unordered_map<string, unordered_map<string, vector<Event>>> summary = {};
-    std::set<string> receipt_validator;
 
 public:
     StompProtocol(ConnectionHandler *connectionHandler);
+    
     virtual ~StompProtocol();
+    
+    // Copy constructor (deleted)
+    StompProtocol(const StompProtocol &other) = delete;
+    
+    // Copy assignment operator (deleted)
+    StompProtocol& operator=(const StompProtocol &other) = delete;
+
     bool isConnected();
     void setConnected(bool status);
     bool processServerFrame(const string &frame);
@@ -44,6 +51,7 @@ public:
     void handleReciept(Frame frame);
     Frame parseFrame(const std::string &frame);
     // Frame parseFrame(const string& input);
+    static bool eventComparator(const Event& e1, const Event& e2);
     const string summerize_description(const string &string);
     const string epoch_to_date(const string &date_and_time);
     void exportEventsToFile(const string &channel,const string &user,const string &filename);

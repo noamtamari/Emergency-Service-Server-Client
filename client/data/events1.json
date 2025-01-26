@@ -53,7 +53,7 @@
         },
         {
             "event_name": "Assault",
-            "city": "Pallet Town",
+            "city": "Aallet Town",
             "date_time": 1735162200,
             "description": "Male suspect assaulted another individual during an altercation at Liberty Mall. Victim suffered minor injuries.",
             "general_information": {
@@ -62,7 +62,7 @@
             }
         },
         {
-            "event_name": "Drug Possession Arrest",
+            "event_name": "Arug Possession Arrest",
             "city": "Gotham City",
             "date_time": 1735194000,
             "description": "Police apprehended a suspect in possession of illegal substances near Green Park.",

@@ -5,14 +5,15 @@
 #include <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
-using namespace std; 
+using namespace std;
 
-class ConnectionHandler {
+class ConnectionHandler
+{
 private:
-	const std::string user_name;
-	const std::string host_;
+	const std::string host_ = "";
 	const short port_;
-	boost::asio::io_service io_service_;   // Provides core I/O functionality
+	const std::string user_name = "";
+	boost::asio::io_service io_service_; // Provides core I/O functionality
 	tcp::socket socket_;
 
 public:
@@ -52,4 +53,4 @@ public:
 	// Close down the connection properly.
 	void close();
 
-}; //class ConnectionHandler
+}; // class ConnectionHandler

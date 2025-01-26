@@ -66,13 +66,14 @@ bool StompProtocol::processServerFrame(const std::string &frame)
         handleError(newFrame);
         return true;
     }
+    return false;
 }
 
 // Handles error frames from the server
 void StompProtocol::handleError(Frame frame)
 {
     // check somehow what failed, mabey we do need reveipt-id althoug i think we send it
-    cout << "ERROR FROM THE SERVER: \n "<< frame.getBody() << endl;
+    cout << "ERROR FROM THE SERVER: \n " << frame.getBody() << endl;
     setConnected(false);
 }
 
@@ -277,10 +278,12 @@ void StompProtocol::handleExit(vector<string> read)
     else
     {
         std::unordered_map<std::string, int>::iterator channel_subscriptionId = channel_subscription.find(read[1]);
+        channel_subscription.end();
+
         // User is not subscribed to the specified channel
         if (channel_subscriptionId == channel_subscription.end())
         {
-            cout << "you are not subscribed to channel " + channel_subscriptionId->first << endl;
+            std::cout << "You tried to unsubscribe from a channel you are not subscribed" + read[1] << endl;
         }
         else
         {
@@ -381,7 +384,7 @@ Frame StompProtocol::parseFrame(const string &input)
             string key = line.substr(0, colonPos);
             string value = line.substr(colonPos + 1);
             headers[key] = value;
-            //cout << "\033[38;5;214m" << key << ": " << value << endl; // Orange
+            cout << "\033[38;5;214m" << key << ": " << value << endl; // Orange
         }
         else
         {
@@ -414,18 +417,6 @@ const string StompProtocol::summerize_description(const string &description)
 // Converts an epoch timestamp string to a human-readable date and time format
 const string StompProtocol::epoch_to_date(const string &input)
 {
-    // string formattedDateTime;
-    // formattedDateTime += input.substr(0, 2); // Days
-    // formattedDateTime += "/";
-    // formattedDateTime += input.substr(2, 2); // Months
-    // formattedDateTime += "/";
-    // formattedDateTime += input.substr(4, 2); // Years
-    // formattedDateTime += " ";
-    // formattedDateTime += input.substr(6, 2); // Minutes (again)
-    // formattedDateTime += ":";
-    // formattedDateTime += input.substr(8, 2); // Seconds (again)
-
-    // return formattedDateTime;
     // Convert epoch seconds to time_t
     long epochSeconds = std::stol(input);
     std::time_t time = static_cast<std::time_t>(epochSeconds);
@@ -442,7 +433,6 @@ const string StompProtocol::epoch_to_date(const string &input)
 // Exports event reports for a specific user and channel to a JSON file
 void StompProtocol::exportEventsToFile(const string &channel, const string &user, const string &filename)
 {
-    // printSummary(summary);
     // Ensure the user exists in the summary
     unordered_map<string, unordered_map<string, vector<Event>>>::iterator user_reported = summary.find(user);
     bool empty = false;
@@ -465,33 +455,16 @@ void StompProtocol::exportEventsToFile(const string &channel, const string &user
     int total_sum_reports = 0;
     int forces = 0;
     vector<Event> &reports_vector = event_channel->second;
-    // Check if events exist in the channel
-    // std::cout << "Number of events in channel '" << channel << "': " << reports_vector.size() << std::endl;
+    std::sort(reports_vector.begin(), reports_vector.end(), eventComparator);
     map<int, map<string, Event>> sorted_events = {};
+
     if (!empty)
     {
         for (const Event &event : reports_vector)
         {
-            // cout << event.toString() << endl;
-            map<int, map<string, Event>>::iterator same_date_events = sorted_events.find(event.get_date_time());
-            if (same_date_events == sorted_events.end())
-            {
-                map<string, Event> event_name_and_event = {};
-                event_name_and_event.insert({event.get_name(), event});
-                sorted_events.insert({event.get_date_time(), event_name_and_event});
-            }
-            else
-            {
-                map<string, Event> &event_name_and_event = same_date_events->second;
-                event_name_and_event.insert({event.get_name(), event});
-                // sorted_events.insert({event.get_date_time(),event_name_and_event});
-            }
             map<string, string> general_info = event.get_general_information();
             const string active = " active";
-            // for (const auto& pair : general_info) {
-            //     cout << "Key: '" << pair.first << "', Value: '" << pair.second << "'" << endl;
-            // }
-            // cout << "active" << (general_info.find(active)->second) << endl;
+            cout << "active" << (general_info.find(active)->second) << endl;
             if ((event.get_general_information()).find(active)->second == "true")
             {
                 true_active++;
@@ -523,24 +496,27 @@ void StompProtocol::exportEventsToFile(const string &channel, const string &user
         if (!empty)
         {
             int reports = 1;
-            // Iterate using an iterator
-            for (map<int, map<string, Event>>::iterator it = sorted_events.begin(); it != sorted_events.end(); ++it)
+            for (const Event &event : reports_vector)
             {
-                map<string, Event> &event_name_to_event = it->second;
-                for (map<string, Event>::iterator iter = event_name_to_event.begin(); iter != event_name_to_event.end(); ++iter)
-                {
-                    Event event = iter->second;
-                    output_file << "Report_" + to_string(reports) + ":" << endl;
-                    output_file << "\tcity: " + event.get_city() << endl;
-                    output_file << "\tdate time: " + epoch_to_date(to_string(event.get_date_time())) << endl;
-                    output_file << "\tevent name: " + event.get_name() << endl;
-                    output_file << "summary: " + summerize_description(event.get_description()) << endl;
-                    output_file << "" << endl;
-                    reports++;
-                }
+                output_file << "Report_" + to_string(reports) + ":" << endl;
+                output_file << "\tcity: " + event.get_city() << endl;
+                output_file << "\tdate time: " + epoch_to_date(to_string(event.get_date_time())) << endl;
+                output_file << "\tevent name: " + event.get_name() << endl;
+                output_file << "\tsummary: " + summerize_description(event.get_description()) << endl;
+                output_file << "" << endl;
+                reports++;
             }
         }
     }
+}
+
+bool StompProtocol::eventComparator(const Event &e1, const Event &e2)
+{
+    if (e1.get_date_time() == e2.get_date_time())
+    {
+        return e1.get_name() < e2.get_name(); // Sort by name if time is equal
+    }
+    return e1.get_date_time() < e2.get_date_time(); // Otherwise, sort by time
 }
 
 // Safe function to print the summary map

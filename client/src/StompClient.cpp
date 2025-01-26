@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include "../include/Event.h" // Ensure this contains the definitions for Frame, Event, and names_and_events
 #include <list>
+#include <chrono>
 
 using namespace std;
 unordered_map<string, int> channel_subscription = {};
@@ -37,90 +38,102 @@ int main(int argc, char *argv[])
         std::string line;
         std::getline(std::cin, line);
         vector<string> read = keyboardInput::parseArguments(line);
-        if (connectionHandler == nullptr && read[0] == "login")
+        if (read[0] == "close")
         {
-            if (read.size() != 4)
+            running = false;
+            if (stompProtocol != nullptr && !stompProtocol->isConnected())
             {
-                cout << "login command needs 3 args: {host:port} {user} {password}" << endl;
-                continue;
+                delete stompProtocol;
+                stompProtocol = nullptr;
+
+                delete connectionHandler; // Free the allocated memory and close the connection
+                connectionHandler = nullptr;
             }
-            else
+        }
+        else
+        {
+            if (connectionHandler == nullptr && read[0] == "login")
             {
-                // std::regex pattern(R"(^[a-zA-Z0-9]+:[a-zA-Z0-9]+$)");
-                bool hostPort = isValidHostPort(read[1]);
-                if (!hostPort)
+                if (read.size() != 4)
                 {
-                    std::cout << "host:port are illegal" << std::endl;
+                    cout << "login command needs 3 args: {host:port} {user} {password}" << endl;
+                    continue;
                 }
                 else
                 {
-                    string host;
-                    string port;
-                    int portNum;
-                    // Find the position of the colon
-                    size_t dotSpace = read[1].find(':');
-                    // Extract host (string1) and port (string2)
-                    host = read[1].substr(0, dotSpace);
-                    port = read[1].substr(dotSpace + 1);
-                    portNum = std::stoi(port);
-                    connectionHandler = new ConnectionHandler(host, portNum, read[2]);
-                    // see what happens with the connection handler and delete? try again , etc
-                    if (!connectionHandler->connect())
+                    // std::regex pattern(R"(^[a-zA-Z0-9]+:[a-zA-Z0-9]+$)");
+                    bool hostPort = isValidHostPort(read[1]);
+                    if (!hostPort)
                     {
-                        std::cout << "Cannot connect to the server" << std::endl;
+                        std::cout << "host:port are illegal" << std::endl;
                     }
                     else
                     {
-                        stompProtocol = new StompProtocol(connectionHandler);
-                        stompProtocol->handleLogin(read);
-                        if (connectionHandler != nullptr && stompProtocol != nullptr && !stompProtocol->isConnected())
+                        string host;
+                        string port;
+                        int portNum;
+                        // Find the position of the colon
+                        size_t dotSpace = read[1].find(':');
+                        // Extract host (string1) and port (string2)
+                        host = read[1].substr(0, dotSpace);
+                        port = read[1].substr(dotSpace + 1);
+                        portNum = std::stoi(port);
+                        connectionHandler = new ConnectionHandler(host, portNum, read[2]);
+                        // see what happens with the connection handler and delete? try again , etc
+                        if (!connectionHandler->connect())
                         {
-                            stompProtocol->setConnected(true);
-                            cout << "Starting server listener" << endl;
-                            serverThread = std::thread(serverListner, std::ref(*connectionHandler), std::ref(*stompProtocol), std::ref(running));
+                            std::cout << "Cannot connect to the server" << std::endl;
+                        }
+                        else
+                        {
+                            stompProtocol = new StompProtocol(connectionHandler);
+                            stompProtocol->handleLogin(read);
+                            if (connectionHandler != nullptr && stompProtocol != nullptr && !stompProtocol->isConnected())
+                            {
+                                stompProtocol->setConnected(true);
+                                cout << "Starting server listener" << endl;
+                                serverThread = std::thread(serverListner, std::ref(*connectionHandler), std::ref(*stompProtocol), std::ref(running));
+                            }
                         }
                     }
                 }
             }
-        }
-        // Connection was not made and user wrote command that is not login
-        else if (stompProtocol == nullptr && read[0] != "login")
-        {
-            cout << "please login first" << std::endl;
-        }
-        // Connection was made but user tried to login again
-        else if (stompProtocol != nullptr && read[0] == "login")
-        {
-            cout << "user already logedin " << std::endl;
-        }
-        // Connection was made and user tries to preform command that is not login
-        else
-        {
-            cout << "User input: " << read[0] << endl;
-            if (stompProtocol != nullptr)
+            // Connection was not made and user wrote command that is not login
+            else if (stompProtocol == nullptr && read[0] != "login")
             {
-                stompProtocol->processUserInput(read);
+                cout << "please login first" << std::endl;
+            }
+            // Connection was made but user tried to login again
+            else if (stompProtocol != nullptr && read[0] == "login")
+            {
+                cout << "user already logedin " << std::endl;
+            }
+            // Connection was made and user tries to preform command that is not login
+            else
+            {
+                cout << "User input: " << read[0] << endl;
+                if (stompProtocol != nullptr)
+                {
+                    stompProtocol->processUserInput(read);
+                }
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            // delete both stomp protocol and connecntion hanler
+            if ((stompProtocol != nullptr && !stompProtocol->isConnected()) || (read.size() != 1 && read[0] == "logout"))
+            {
+                cout << "logouting!!! " << endl;
+                serverThread.join();
+            }
+            if (stompProtocol != nullptr && !stompProtocol->isConnected())
+            {
+                delete stompProtocol;
+                stompProtocol = nullptr;
+
+                delete connectionHandler; // Free the allocated memory and close the connection
+                connectionHandler = nullptr;
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        // delete both stomp protocol and connecntion hanler
-        if (stompProtocol != nullptr && !stompProtocol->isConnected() | read[0] == "logout")
-        {
-            cout << "logouting!!! " << endl;
-            serverThread.join();
-        }
-        if (stompProtocol != nullptr && !stompProtocol->isConnected()){
-            delete stompProtocol;
-            stompProtocol = nullptr;
-
-            delete connectionHandler;      // Free the allocated memory and close the connection
-            connectionHandler = nullptr; 
-        }
-        if (read[0] == "close"){
-            running = false;
-        }
     }
-
     cout << "Exiting main" << endl;
     return 0;
 }
@@ -130,7 +143,7 @@ void serverListner(ConnectionHandler &conncectionHandler, StompProtocol &stompPr
     std::list<string> msgs;
     while (stompProtocol.isConnected())
     {
-        cout << "Server listener running" << endl;
+        // cout << "Server listener running" << endl;
         string serverMessage;
         bool gotMessage = conncectionHandler.getLine(serverMessage);
         if (gotMessage && !serverMessage.empty())
