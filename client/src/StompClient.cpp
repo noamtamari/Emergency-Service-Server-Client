@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
             {
                 if (read.size() != 4)
                 {
-                    std::cout << "\033[95login command needs 3 args: {host:port} {user} {password}\033[0m" << std::endl;
+                    std::cout << "\033[95mlogin command needs 3 args: {host:port} {user} {password}\033[0m" << std::endl;
                     continue;
                 }
                 else
@@ -115,7 +115,6 @@ int main(int argc, char *argv[])
             {
                 if (stompProtocol != nullptr)
                 {
-                    cout << " HERE" << endl;
                     stompProtocol->processUserInput(read);
                 }
             }
