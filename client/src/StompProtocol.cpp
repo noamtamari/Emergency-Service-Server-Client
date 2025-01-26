@@ -205,28 +205,33 @@ void StompProtocol::handleReciept(Frame frame)
 // Processes user input and delegates to specific handlers based on the command
 void StompProtocol::processUserInput(vector<string> read)
 {
-    if (read[0] == "join")
-    {
-        handleJoin(read);
+    if (read.size() != 0){
+        if (read[0] == "join")
+        {
+            handleJoin(read);
+        }
+        else if (read[0] == "exit")
+        {
+            handleExit(read);
+        }
+        else if (read[0] == "report")
+        {
+            handleReport(read);
+        }
+        else if (read[0] == "logout")
+        {
+            handleLogout(read);
+        }
+        else if (read[0] == "summary")
+        {
+            handleSummary(read);
+        }
+        else
+        {
+            std::cout << "\033[95mIllegal command, please try a different one\033[0m" << std::endl;
+        }
     }
-    else if (read[0] == "exit")
-    {
-        handleExit(read);
-    }
-    else if (read[0] == "report")
-    {
-        handleReport(read);
-    }
-    else if (read[0] == "logout")
-    {
-        handleLogout(read);
-    }
-    else if (read[0] == "summary")
-    {
-        handleSummary(read);
-    }
-    else
-    {
+    else{
         std::cout << "\033[95mIllegal command, please try a different one\033[0m" << std::endl;
     }
 }
@@ -336,7 +341,6 @@ void StompProtocol::handleReport(vector<string> read)
             {
                 reciepts_count++;
                 event.setEventOwnerUser((*connectionHandler).get_user_name());
-                std::cout << "this is " << (*connectionHandler).get_user_name() << endl;
                 Frame frame("SEND", {{"destination", channel}, {"receipt", to_string(receipts)}}, event.toString());
                 string send = frame.toString();
                 (*connectionHandler).sendLine(send);
@@ -454,11 +458,13 @@ void StompProtocol::exportEventsToFile(const string &channel, const string &user
 {
     // Ensure the user exists in the summary
     unordered_map<string, unordered_map<string, vector<Event>>>::iterator user_reported = summary.find(user);
-    bool empty = false;
+    int true_active = 0;
+    int total_sum_reports = 0;
+    int forces = 0;
     if (user_reported == summary.end())
     {
-        cerr << "Error: User not found in summary." << endl;
-        empty = true;
+        exportEmptyFile(channel,filename);
+        return;
     }
     // Ensure the channel exists in the user's reports
     unordered_map<string, vector<Event>> &previous_user_reports = user_reported->second;
@@ -466,34 +472,25 @@ void StompProtocol::exportEventsToFile(const string &channel, const string &user
     unordered_map<string, vector<Event>>::iterator event_channel = previous_user_reports.find(channel);
     if (event_channel == previous_user_reports.end())
     {
-        cerr << "Error: Channel not found in user's reports." << endl;
+        exportEmptyFile(channel,filename);
         return;
     }
     // Analyze general information
-    int true_active = 0;
-    int total_sum_reports = 0;
-    int forces = 0;
     vector<Event> &reports_vector = event_channel->second;
     std::sort(reports_vector.begin(), reports_vector.end(), eventComparator);
     map<int, map<string, Event>> sorted_events = {};
-
-    if (!empty)
+    for (const Event &event : reports_vector)
     {
-        for (const Event &event : reports_vector)
-        {
-            map<string, string> general_info = event.get_general_information();
-            const string active = " active";
-            if ((event.get_general_information()).find(active)->second == "true")
-            {
-                true_active++;
-            }
-            const string force = " forces_arrival_at_scene";
-            if ((event.get_general_information()).find(force)->second == "true")
-            {
-                forces++;
-            }
-            total_sum_reports++;
+        map<string, string> general_info = event.get_general_information();
+        const string active = " active";
+        if ((event.get_general_information()).find(active)->second == "true"){
+            true_active++;
         }
+        const string force = " forces_arrival_at_scene";
+        if ((event.get_general_information()).find(force)->second == "true"){
+            forces++;
+        }
+        total_sum_reports++;
     }
     std::ofstream output_file;
     output_file.open(filename);
@@ -511,21 +508,39 @@ void StompProtocol::exportEventsToFile(const string &channel, const string &user
         output_file << "" << endl;
         output_file << "Event Resports:" << endl;
         output_file << "" << endl;
-        if (!empty)
+        int reports = 1;
+        for (const Event &event : reports_vector)
         {
-            int reports = 1;
-            for (const Event &event : reports_vector)
-            {
-                output_file << "Report_" + to_string(reports) + ":" << endl;
-                output_file << "\tcity: " + event.get_city() << endl;
-                output_file << "\tdate time: " + epoch_to_date(to_string(event.get_date_time())) << endl;
-                output_file << "\tevent name: " + event.get_name() << endl;
-                output_file << "\tsummary: " + summerize_description(event.get_description()) << endl;
-                output_file << "" << endl;
-                reports++;
-            }
+            output_file << "Report_" + to_string(reports) + ":" << endl;
+            output_file << "\tcity: " + event.get_city() << endl;
+            output_file << "\tdate time: " + epoch_to_date(to_string(event.get_date_time())) << endl;
+            output_file << "\tevent name: " + event.get_name() << endl;
+            output_file << "\tsummary: " + summerize_description(event.get_description()) << endl;
+            output_file << "" << endl;
+            reports++;
         }
     }
+}
+
+void StompProtocol::exportEmptyFile (const string &channel, const string &filename){
+    std::ofstream output_file;
+    output_file.open(filename);
+    if (!output_file)
+    {
+        cerr << "Error: could not open the file" << endl;
+    }
+    else
+    {
+        output_file << "Channel " + channel << endl;
+        output_file << "Stats: " << endl;
+        output_file << "Total: " << std::to_string(0) << endl;
+        output_file << "active: " << std::to_string(0) << endl;
+        output_file << "forces arrival at scene: " << std::to_string(0) << endl;
+        output_file << "" << endl;
+        output_file << "Event Resports:" << endl;
+        output_file << "" << endl;
+    }
+
 }
 
 bool StompProtocol::eventComparator(const Event &e1, const Event &e2)

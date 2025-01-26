@@ -1,5 +1,6 @@
-Channel police
+Channel p
 Stats: 
+<<<<<<< HEAD
 Total: 14
 active: 10
 forces arrival at scene: 8
@@ -90,3 +91,11 @@ Report_14:
 	event name: Vandalism
 	summary: Multiple cars were spray-pa...
 
+=======
+Total: 0
+active: 0
+forces arrival at scene: 0
+
+Event Resports:
+
+>>>>>>> 011bad541c721a44a6eafba3f4d189db505fc6c8

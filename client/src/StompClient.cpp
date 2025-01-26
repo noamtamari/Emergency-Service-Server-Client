@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
         std::string line;
         std::getline(std::cin, line);
         vector<string> read = keyboardInput::parseArguments(line);
-        if (read[0] == "close")
+        if (read.size() != 0 && read[0] == "close")
         {
             running = false;
             if (stompProtocol != nullptr && !stompProtocol->isConnected())
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         }
         else
         {
-            if (connectionHandler == nullptr && read[0] == "login")
+            if (connectionHandler == nullptr && read.size() != 0 && read[0] == "login")
             {
                 if (read.size() != 4)
                 {
@@ -106,16 +106,16 @@ int main(int argc, char *argv[])
                 std::cout << "\033[95mplease login first\033[0m" << std::endl;
             }
             // Connection was made but user tried to login again
-            else if (stompProtocol != nullptr && read[0] == "login")
+            else if (stompProtocol != nullptr &&  (read.size() != 0 && read[0] == "login"))
             {
                 std::cout << "\033[95mThe client is already logged in, log out before trying again\033[0m" << std::endl;
             }
             // Connection was made and user tries to preform command that is not login
             else
             {
-                cout << "User input: " << read[0] << endl;
                 if (stompProtocol != nullptr)
                 {
+                    cout << " HERE" << endl;
                     stompProtocol->processUserInput(read);
                 }
             }
