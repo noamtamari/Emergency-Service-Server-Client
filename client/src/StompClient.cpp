@@ -1,63 +1,62 @@
 #include "../include/ConnectionHandler.h"
-#include <thread>
-#include <iostream>
 #include "../include/Frame.h"
 #include "../include/keyboardInput.h"
 #include "../include/StompProtocol.h"
-#include <vector>
-#include <string>
-#include <regex>
-#include <chrono>
-#include <unordered_map>
 #include "../include/Event.h" // Ensure this contains the definitions for Frame, Event, and names_and_events
-#include <list>
+
+#include <string>
 #include <chrono>
+#include <list>
+#include <thread>
+#include <iostream>
 
 using namespace std;
-unordered_map<string, int> channel_subscription = {};
-ConnectionHandler *connectionHandler; // delete it somewhere do not forget
 
 // Declare the serverListener function here
-void serverListner(ConnectionHandler &connectionHandler, StompProtocol &stompProtocol, bool &running);
+void serverListner(ConnectionHandler &connectionHandler, StompProtocol &stompProtocol);
 
 // Declare the isValidHostPort function here
 bool isValidHostPort(const std::string &input);
 
 int main(int argc, char *argv[])
 {
-    // bool connected = false;
-    StompProtocol *stompProtocol = nullptr;
-    ConnectionHandler *connectionHandler = nullptr;
-    std::thread serverThread;
+    StompProtocol *stompProtocol = nullptr; // Pointer to handle STOMP protocol operations
+    ConnectionHandler *connectionHandler = nullptr;  // Pointer to connectionHandler
+    std::thread serverThread;  // Thread for server listener
 
-    bool running = true;
+    bool running = true; // Main loop control variabl
+    
     while (running)
     {
-        // how do you know this
+        // Read user input from the terminal
         std::string line;
-        std::getline(std::cin, line);
-        vector<string> read = keyboardInput::parseArguments(line);
+        std::getline(std::cin, line); // Reads one line of input from the terminal
+        vector<string> read = keyboardInput::parseArguments(line); // Parses the input into a vector of strings
+
+        // Handle the "close" command to terminate the client
         if (read.size() != 0 && read[0] == "close")
         {
-            running = false;
-            if (serverThread.joinable())
-            {
-                serverThread.join(); // Wait for server listener to terminate
+            running = false; // Breaks out of the main loop
+
+            // Ensures the server listener thread is terminated properly
+            if (serverThread.joinable()) {
+                    serverThread.join(); // Wait for the server listener thread to terminate
             }
-            // Free the allocated memory and close the connection
+
+            // Clean up dynamically allocated resources
             if (stompProtocol != nullptr && !stompProtocol->isConnected())
             {
                 delete stompProtocol;
                 stompProtocol = nullptr;
             }
-            if (connectionHandler != nullptr)
-            {
-                delete connectionHandler; // Free the allocated memory and close the connection
+            if (connectionHandler != nullptr){
+                delete connectionHandler; 
                 connectionHandler = nullptr;
             }
         }
         else
         {
+            // Handle "login" command to establish a connection
             if (connectionHandler == nullptr && read.size() != 0 && read[0] == "login")
             {
                 if (read.size() != 4)
@@ -67,7 +66,7 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
-                    // std::regex pattern(R"(^[a-zA-Z0-9]+:[a-zA-Z0-9]+$)");
+                    // Validate the format of the host:port
                     bool hostPort = isValidHostPort(read[1]);
                     if (!hostPort)
                     {
@@ -75,36 +74,42 @@ int main(int argc, char *argv[])
                     }
                     else
                     {
+                        // Extract host and port from the input
                         string host;
                         string port;
                         int portNum;
-                        // Find the position of the colon
                         size_t dotSpace = read[1].find(':');
+
                         // Extract host (string1) and port (string2)
                         host = read[1].substr(0, dotSpace);
                         port = read[1].substr(dotSpace + 1);
                         portNum = std::stoi(port);
+                        // Create a new connection handler and attempt to connect
                         connectionHandler = new ConnectionHandler(host, portNum, read[2]);
-                        // see what happens with the connection handler and delete? try again , etc
                         if (!connectionHandler->connect())
                         {
                             std::cout << "\033[95mCould not connect to the server\033[0m" << std::endl;
-                            delete connectionHandler; // Free the allocated memory and close the connection
+                            delete connectionHandler; // Clean up on failure
                             connectionHandler = nullptr;
                         }
                         else
                         {
+                            // Create a new STOMP protocol handler
                             stompProtocol = new StompProtocol(connectionHandler);
                             stompProtocol->handleLogin(read);
+                            
+                            // Start the server listener thread if the connection is successful
                             if (connectionHandler != nullptr && stompProtocol != nullptr && !stompProtocol->isConnected())
                             {
                                 stompProtocol->setConnected(true);
-                                serverThread = std::thread(serverListner, std::ref(*connectionHandler), std::ref(*stompProtocol), std::ref(running));
+                                serverThread = std::thread(serverListner, std::ref(*connectionHandler), std::ref(*stompProtocol));
                             }
                         }
                     }
                 }
             }
+             // Handle invalid or out-of-order commands
+
             // Connection was not made and user wrote command that is not login
             else if (stompProtocol == nullptr && (read.size() == 0 || read[0] != "login"))
             {
@@ -118,6 +123,7 @@ int main(int argc, char *argv[])
             // Connection was made and user tries to preform command that is not login
             else
             {
+                // Pass other commands to the STOMP protocol handler
                 if (stompProtocol != nullptr)
                 {
                     stompProtocol->processUserInput(read);
@@ -132,19 +138,23 @@ int main(int argc, char *argv[])
             }
             if (stompProtocol != nullptr && !stompProtocol->isConnected())
             {
-                delete stompProtocol;
+                delete stompProtocol; // Free the allocated memory
                 stompProtocol = nullptr;
 
-                delete connectionHandler; // Free the allocated memory and close the connection
-                connectionHandler = nullptr;
+                if (connectionHandler != nullptr){
+                    delete connectionHandler; // Free the allocated memory and close the connection
+                    connectionHandler = nullptr;
+                }
             }
         }
     }
-    cout << "Exiting main" << endl;
+    // Program termination message
+    cout << "Closing client.." << endl;
     return 0;
 }
 
-void serverListner(ConnectionHandler &conncectionHandler, StompProtocol &stompProtocol, bool &running)
+// Server listener function (runs in a separate thread)
+void serverListner(ConnectionHandler &conncectionHandler, StompProtocol &stompProtocol)
 {
     std::list<string> msgs;
     while (stompProtocol.isConnected())
@@ -152,6 +162,8 @@ void serverListner(ConnectionHandler &conncectionHandler, StompProtocol &stompPr
         ;
         string serverMessage;
         bool gotMessage = conncectionHandler.getLine(serverMessage);
+
+         // Process valid messages received from the server
         if (gotMessage && !serverMessage.empty())
         {
             stompProtocol.processServerFrame(serverMessage);
@@ -159,6 +171,7 @@ void serverListner(ConnectionHandler &conncectionHandler, StompProtocol &stompPr
     }
 }
 
+// Validates host:port format
 bool isValidHostPort(const std::string &input)
 {
     // Find the position of the colon
