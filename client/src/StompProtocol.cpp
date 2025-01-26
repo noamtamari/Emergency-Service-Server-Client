@@ -78,7 +78,6 @@ void StompProtocol::handleMessage(Frame frame)
 {
     string report_frame = frame.getBody();
     const string receipt = frame.getHeader("receipt-id");
-    std::cout << receipt <<  std::endl;
     const string channel = frame.getHeader("destination");
     Event event(report_frame, channel);
     unordered_map<string, unordered_map<string, vector<Event>>>::iterator user_reported = summary.find(event.getEventOwnerUser()); // Map of the user previous reports for all channels
@@ -90,7 +89,6 @@ void StompProtocol::handleMessage(Frame frame)
         reports_for_channel_vector.push_back(event);
         report_map.emplace(event.get_channel_name(), reports_for_channel_vector);
         summary.emplace(event.getEventOwnerUser(), report_map);
-        std::cout << event.getEventOwnerUser() << endl;
     }
     // User already reported previously
     else
@@ -468,7 +466,6 @@ void StompProtocol::exportEventsToFile(const string &channel, const string &user
     }
     // Ensure the channel exists in the user's reports
     unordered_map<string, vector<Event>> &previous_user_reports = user_reported->second;
-    // std::cout << "Number of users '" << "': " << previous_user_reports.size() << std::endl;
     unordered_map<string, vector<Event>>::iterator event_channel = previous_user_reports.find(channel);
     if (event_channel == previous_user_reports.end())
     {
@@ -550,57 +547,4 @@ bool StompProtocol::eventComparator(const Event &e1, const Event &e2)
         return e1.get_name() < e2.get_name(); // Sort by name if time is equal
     }
     return e1.get_date_time() < e2.get_date_time(); // Otherwise, sort by time
-}
-
-// Safe function to print the summary map
-void StompProtocol::printSummary(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Event>>> &summary)
-{
-    // Check if the summary map is empty
-    if (summary.empty())
-    {
-        std::cout << "The summary map is empty." << std::endl;
-        return;
-    }
-
-    // Iterate over each user in the summary map
-    for (const auto &userEntry : summary)
-    {
-        std::cout << std::to_string(summary.size()) << endl;
-        const std::string &username = userEntry.first;
-        const auto &userReports = userEntry.second;
-
-        std::cout << "User: " << username << std::endl;
-
-        // Check if the user's report map is empty
-        if (userReports.empty())
-        {
-            std::cout << "\tNo channels for this user." << std::endl;
-            continue;
-        }
-
-        // Iterate over each channel for the user
-        for (const auto &channelEntry : userReports)
-        {
-            const std::string &channelName = channelEntry.first;
-            const auto &events = channelEntry.second;
-
-            std::cout << "\tChannel: " << channelName << std::endl;
-
-            // Check if the channel's event vector is empty
-            if (events.empty())
-            {
-                std::cout << "\t\tNo events for this channel." << std::endl;
-                continue;
-            }
-
-            // Iterate over each event in the channel
-            for (const Event &event : events)
-            {
-                // Assuming Event has methods like get_name(), get_date_time(), and get_description()
-                std::cout << "\t\tEvent Name: " << event.get_name() << std::endl;
-                std::cout << "\t\tDate: " << event.get_date_time() << std::endl;
-                std::cout << "\t\tDescription: " << event.get_description() << std::endl;
-            }
-        }
-    }
 }

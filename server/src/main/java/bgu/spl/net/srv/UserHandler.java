@@ -63,4 +63,9 @@ public class UserHandler {
         if (username != null)
             activeUsersByUserName.remove(username);
     }
+
+    // Method to make user exit
+    public void removeUser(String username) {
+        allUsers.remove(username);
+    }
 }

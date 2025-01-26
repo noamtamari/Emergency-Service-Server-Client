@@ -50,7 +50,7 @@ Error to print: please login first
 
 Error to print: ERROR frame 
 	a)login 127.0.0.1:7777 noam 123 , report /workspaces/SPL3ProjectFiles/client/data/events1.json - User not subscribed to 		this channel
-	b)login 127.0.0.1:7777 noam 123, join police , logout , login 127.0.0.1:7777 noam 123, report 						/workspaces/SPL3ProjectFiles/client/data/events1.json User not subscribed to this channel 
+	b)login 127.0.0.1:7777 noam 123, join police , logout , login 127.0.0.1:7777 noam 123, report 						/workspaces/SPL3ProjectFiles/client/data/events1.json - User not subscribed to this channel 
 
 4)summary command -
 	a)login 127.0.0.1:7777 noam 123 ,join police, summary police noam out1.txt - should create out1.txt in bin folder with
@@ -120,13 +120,18 @@ Report_7:
 	f)login 127.0.0.1:7777 noam 123, join police, summary police noy out5.txt - should create out5.txt like section a) 			meaning empty.
 	g)login 127.0.0.1:7777 noam 123 ,join police,join instagram. open another client, login 127.0.0.1:7777 noam1 123, join 	Instagram,join police, from user noam - report /workspaces/SPL3ProjectFiles/client/data/events1.json. in user noam1 - 		summary instagram noam out6.txt
 	h)login 127.0.0.1:7777 noam 123, summary - summary command needs 3 args: {channel_name} {user} {file}
+
+5)logout command -
+
+	a)login 127.0.0.1:7777 noam 123, logout - Logged Out
+	b)login 127.0.0.1:7777 noam 123, logout, logout again - please login first.
 			
 
 
 
 
 		
-
+bugs to handle - loging and then logout twice
 
 
 

@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
     bool running = true;
     while (running)
     {
-        cout << "In the while " << endl;
         // how do you know this
         std::string line;
         std::getline(std::cin, line);
@@ -41,11 +40,13 @@ int main(int argc, char *argv[])
         if (read.size() != 0 && read[0] == "close")
         {
             running = false;
+            // Free the allocated memory and close the connection
             if (stompProtocol != nullptr && !stompProtocol->isConnected())
             {
                 delete stompProtocol;
                 stompProtocol = nullptr;
-
+            }
+            if (connectionHandler != nullptr){
                 delete connectionHandler; // Free the allocated memory and close the connection
                 connectionHandler = nullptr;
             }

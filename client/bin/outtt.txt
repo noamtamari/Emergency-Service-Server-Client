@@ -1,0 +1,260 @@
+Channel police
+Stats: 
+Total: 42
+active: 30
+forces arrival at scene: 24
+
+Event Resports:
+
+Report_1:
+	city: Raccoon City
+	date time: 23/12/2024 07:45
+	event name: Burglary
+	summary: Suspect broke into a reside...
+
+Report_2:
+	city: Raccoon City
+	date time: 23/12/2024 07:45
+	event name: Burglary
+	summary: Suspect broke into a reside...
+
+Report_3:
+	city: Raccoon City
+	date time: 23/12/2024 07:45
+	event name: Burglary
+	summary: Suspect broke into a reside...
+
+Report_4:
+	city: Raccoon City
+	date time: 23/12/2024 07:45
+	event name: Burglary
+	summary: Suspect broke into a reside...
+
+Report_5:
+	city: Raccoon City
+	date time: 23/12/2024 07:45
+	event name: Burglary
+	summary: Suspect broke into a reside...
+
+Report_6:
+	city: Raccoon City
+	date time: 23/12/2024 07:45
+	event name: Burglary
+	summary: Suspect broke into a reside...
+
+Report_7:
+	city: Liberty City
+	date time: 23/12/2024 13:40
+	event name: Grand Theft Auto
+	summary: Pink Lampadati Felon with l...
+
+Report_8:
+	city: Liberty City
+	date time: 23/12/2024 13:40
+	event name: Grand Theft Auto
+	summary: Pink Lampadati Felon with l...
+
+Report_9:
+	city: Liberty City
+	date time: 23/12/2024 13:40
+	event name: Grand Theft Auto
+	summary: Pink Lampadati Felon with l...
+
+Report_10:
+	city: Liberty City
+	date time: 23/12/2024 13:40
+	event name: Grand Theft Auto
+	summary: Pink Lampadati Felon with l...
+
+Report_11:
+	city: Liberty City
+	date time: 23/12/2024 13:40
+	event name: Grand Theft Auto
+	summary: Pink Lampadati Felon with l...
+
+Report_12:
+	city: Liberty City
+	date time: 23/12/2024 13:40
+	event name: Grand Theft Auto
+	summary: Pink Lampadati Felon with l...
+
+Report_13:
+	city: Vice City
+	date time: 24/12/2024 02:20
+	event name: Hit and Run
+	summary: Black SUV struck a pedestri...
+
+Report_14:
+	city: Vice City
+	date time: 24/12/2024 02:20
+	event name: Hit and Run
+	summary: Black SUV struck a pedestri...
+
+Report_15:
+	city: Vice City
+	date time: 24/12/2024 02:20
+	event name: Hit and Run
+	summary: Black SUV struck a pedestri...
+
+Report_16:
+	city: Vice City
+	date time: 24/12/2024 02:20
+	event name: Hit and Run
+	summary: Black SUV struck a pedestri...
+
+Report_17:
+	city: Vice City
+	date time: 24/12/2024 02:20
+	event name: Hit and Run
+	summary: Black SUV struck a pedestri...
+
+Report_18:
+	city: Vice City
+	date time: 24/12/2024 02:20
+	event name: Hit and Run
+	summary: Black SUV struck a pedestri...
+
+Report_19:
+	city: Silent Hill
+	date time: 24/12/2024 22:15
+	event name: Armed Robbery
+	summary: Two masked suspects armed w...
+
+Report_20:
+	city: Silent Hill
+	date time: 24/12/2024 22:15
+	event name: Armed Robbery
+	summary: Two masked suspects armed w...
+
+Report_21:
+	city: Silent Hill
+	date time: 24/12/2024 22:15
+	event name: Armed Robbery
+	summary: Two masked suspects armed w...
+
+Report_22:
+	city: Silent Hill
+	date time: 24/12/2024 22:15
+	event name: Armed Robbery
+	summary: Two masked suspects armed w...
+
+Report_23:
+	city: Silent Hill
+	date time: 24/12/2024 22:15
+	event name: Armed Robbery
+	summary: Two masked suspects armed w...
+
+Report_24:
+	city: Silent Hill
+	date time: 24/12/2024 22:15
+	event name: Armed Robbery
+	summary: Two masked suspects armed w...
+
+Report_25:
+	city: Aallet Town
+	date time: 25/12/2024 21:30
+	event name: Assault
+	summary: Male suspect assaulted anot...
+
+Report_26:
+	city: Aallet Town
+	date time: 25/12/2024 21:30
+	event name: Assault
+	summary: Male suspect assaulted anot...
+
+Report_27:
+	city: Aallet Town
+	date time: 25/12/2024 21:30
+	event name: Assault
+	summary: Male suspect assaulted anot...
+
+Report_28:
+	city: Aallet Town
+	date time: 25/12/2024 21:30
+	event name: Assault
+	summary: Male suspect assaulted anot...
+
+Report_29:
+	city: Aallet Town
+	date time: 25/12/2024 21:30
+	event name: Assault
+	summary: Male suspect assaulted anot...
+
+Report_30:
+	city: Aallet Town
+	date time: 25/12/2024 21:30
+	event name: Assault
+	summary: Male suspect assaulted anot...
+
+Report_31:
+	city: Gotham City
+	date time: 26/12/2024 06:20
+	event name: Arug Possession Arrest
+	summary: Police apprehended a suspec...
+
+Report_32:
+	city: Gotham City
+	date time: 26/12/2024 06:20
+	event name: Arug Possession Arrest
+	summary: Police apprehended a suspec...
+
+Report_33:
+	city: Gotham City
+	date time: 26/12/2024 06:20
+	event name: Arug Possession Arrest
+	summary: Police apprehended a suspec...
+
+Report_34:
+	city: Gotham City
+	date time: 26/12/2024 06:20
+	event name: Arug Possession Arrest
+	summary: Police apprehended a suspec...
+
+Report_35:
+	city: Gotham City
+	date time: 26/12/2024 06:20
+	event name: Arug Possession Arrest
+	summary: Police apprehended a suspec...
+
+Report_36:
+	city: Gotham City
+	date time: 26/12/2024 06:20
+	event name: Arug Possession Arrest
+	summary: Police apprehended a suspec...
+
+Report_37:
+	city: Los Alamos
+	date time: 31/12/2024 21:40
+	event name: Vandalism
+	summary: Multiple cars were spray-pa...
+
+Report_38:
+	city: Los Alamos
+	date time: 31/12/2024 21:40
+	event name: Vandalism
+	summary: Multiple cars were spray-pa...
+
+Report_39:
+	city: Los Alamos
+	date time: 31/12/2024 21:40
+	event name: Vandalism
+	summary: Multiple cars were spray-pa...
+
+Report_40:
+	city: Los Alamos
+	date time: 31/12/2024 21:40
+	event name: Vandalism
+	summary: Multiple cars were spray-pa...
+
+Report_41:
+	city: Los Alamos
+	date time: 31/12/2024 21:40
+	event name: Vandalism
+	summary: Multiple cars were spray-pa...
+
+Report_42:
+	city: Los Alamos
+	date time: 31/12/2024 21:40
+	event name: Vandalism
+	summary: Multiple cars were spray-pa...
+

@@ -98,7 +98,6 @@ public class Frame {
     public static Frame fromBytes(byte[] rawBytes) {
         // Convert the byte array to a string using UTF-8 encoding
         String rawFrame = new String(rawBytes, StandardCharsets.UTF_8);
-        System.out.println("fromBytes function - Server got the following message: " + rawFrame);
 
         // Split the message into lines
         String[] lines = rawFrame.split("\n");

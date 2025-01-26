@@ -52,7 +52,6 @@ public class Reactor<T> implements Server<T> {
             serverSock.configureBlocking(false);
             serverSock.register(selector, SelectionKey.OP_ACCEPT);
 			System.out.println("Server started");
-            System.out.println("Noy and noam reactor ):::::");
             while (!Thread.currentThread().isInterrupted()) {
 
                 selector.select();
@@ -78,7 +77,6 @@ public class Reactor<T> implements Server<T> {
             //this is an error
             ex.printStackTrace();
         }
-
         System.out.println("server closed!!!");
         pool.shutdown();
     }
@@ -121,7 +119,6 @@ public class Reactor<T> implements Server<T> {
         }
 
 	    if (key.isValid() && key.isWritable()) {
-            System.out.println("Server got to handle write");
             handler.continueWrite();
         }
     }
