@@ -56,5 +56,6 @@ public:
     const string summerize_description(const string &string);
     const string epoch_to_date(const string &date_and_time);
     void exportEventsToFile(const string &channel,const string &user,const string &filename);
+    void exportEmptyFile (const string &channel, const string &filename);
     void printSummary(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Event>>>& summary);
 };
