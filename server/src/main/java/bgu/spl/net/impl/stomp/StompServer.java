@@ -1,6 +1,5 @@
 package bgu.spl.net.impl.stomp;
 
-import java.util.Scanner;
 import bgu.spl.net.srv.Server;
 
 public class StompServer {

@@ -542,7 +542,7 @@ const string StompProtocol::epoch_to_date(const string &input)
 }
 
 /**
- * @brief Exports event reports for a specific user and channel to a JSON file.
+ * @brief Exports event reports for a specific user and channel to a file.
  * 
  * @param channel The name of the channel to export events from.
  * @param user The name of the user whose events are being exported.

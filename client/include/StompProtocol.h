@@ -3,10 +3,9 @@
 #include "../include/ConnectionHandler.h"
 #include "../include/Frame.h"
 #include "../include/Event.h"
-#include <set>
+
 #include <mutex>
 
-// TODO: implement the STOMP protocol
 class StompProtocol
 {
 private:
@@ -15,47 +14,52 @@ private:
     int subscription_id = 0;
     int logout_reciept = -1;
     std::mutex lock_connection= {};
-    bool connected = false;
-    unordered_map<string, int> channel_subscription = {}; // From channel to subscription id
-    unordered_map<int, string> unsubscribe_channel = {}; // From receipt of exit to subscription id
-    unordered_map<int, string> receipt_respons = {}; // From user's action's receipt to relevent output to the user when the server succseed to perform the user's action
-    unordered_map<int, int> receipt_subscriptionId = {}; // From receipt of subscription, to the subscriptionId of the user 
-    unordered_map<int, string> receipt_channels = {}; // From receipt of subscription, to the channel subscribe to
-    unordered_map<int, string> receipt_map = {}; // From receipt of command, to the command itself
-    unordered_map<int, int> receipt_counter_map= {}; // From receipt of command, to the command itself
-    unordered_map<string, unordered_map<string, vector<Event>>> summary = {};
+    bool connected = false; // Tracks whether the client is connected to the server.
+
+    unordered_map<string, int> channel_subscription = {}; // Maps channel names to their subscription IDs.
+
+    unordered_map<int, string> unsubscribe_channel = {}; // Maps receipt to channels for unsubscribing.
+    unordered_map<int, string> receipt_respons = {}; // Maps receipt to output for user responses.
+    unordered_map<int, int> receipt_subscriptionId = {}; // Maps receipt IDs to subscription IDs.
+    unordered_map<int, string> receipt_channels = {}; // Maps receipt of subscription to subscription IDs.
+    unordered_map<int, string> receipt_map = {}; // Maps receipt IDs to the corresponding command name.
+    unordered_map<int, int> receipt_counter_map= {}; // Maps receipt IDs to counters for managing multi-step commands. Uses for multipule reports
+
+    unordered_map<string, unordered_map<string, vector<Event>>> summary = {}; // Stores summaries of events grouped by users and channels.
 
 public:
-    StompProtocol(ConnectionHandler *connectionHandler);
-    
+    StompProtocol(ConnectionHandler *connectionHandler); // Constructor initializing the protocol with the given connection handler.
     virtual ~StompProtocol();
     
-    // Copy constructor (deleted)
-    StompProtocol(const StompProtocol &other) = delete;
-    
-    // Copy assignment operator (deleted)
-    StompProtocol& operator=(const StompProtocol &other) = delete;
+    StompProtocol(const StompProtocol &other) = delete; // Disables copying via the copy constructor.
+    StompProtocol& operator=(const StompProtocol &other) = delete; // Disables copying via the assignment operator.
 
     bool isConnected();
     void setConnected(bool status);
-    bool processServerFrame(const string &frame);
+
     void processUserInput(vector<string> read);
+
+    // User input protocols
     void handleLogin(vector<string> read);
     void handleJoin(vector<string> read);
     void handleExit(vector<string> read);
     void handleReport(vector<string> read);
     void handleLogout(vector<string> read);
     void handleSummary(vector<string> read);
-    void handleError(Frame frame);
-    void handleMessage(Frame frame);
+
+    bool processServerFrame(const string &frame);
+
+    // Server protocols
+    void handleError(Frame frame); 
+    void handleMessage(Frame frame); 
     void handleConnected(Frame frame);
     void handleReciept(Frame frame);
-    Frame parseFrame(const std::string &frame);
-    // Frame parseFrame(const string& input);
-    static bool eventComparator(const Event& e1, const Event& e2);
-    const string summerize_description(const string &string);
-    const string epoch_to_date(const string &date_and_time);
-    void exportEventsToFile(const string &channel,const string &user,const string &filename);
-    void exportEmptyFile (const string &channel, const string &filename);
-    void printSummary(const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Event>>>& summary);
+
+    
+    Frame parseFrame(const string &frame); // Parses a raw STOMP frame string into a structured `Frame` object.
+    static bool eventComparator(const Event& e1, const Event& e2); // Comparator function to sort events by time and name.
+    const string summerize_description(const string &string); // Summarizes an event description to 27 characters, appending "..." if necessary.
+    const string epoch_to_date(const string &date_and_time); // Converts an epoch timestamp to a human-readable date and time format.
+    void exportEventsToFile(const string &channel,const string &user,const string &filename); // Exports event data for a specific channel and user to a file.
+    void exportEmptyFile (const string &channel, const string &filename); // Writes an empty file if no events are available for the given channel and user.
 };
