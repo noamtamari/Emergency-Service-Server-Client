@@ -42,7 +42,6 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
     }
 
     public Frame processingMsg(Frame msg) {
-        // System.out.println("Client Sent The following message :" + msg.toString());
         if (msg.getType().equals("SUBSCRIBE")) {
             return handleSubscribe(msg);
         }
@@ -50,8 +49,6 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
             return handleUnsubscribe(msg);
         }
         if (msg.getType().equals("DISCONNECT")) {
-            // System.out.println("Server got DISCONNECT and need to return receipt with id:
-            // " + msg.getHeader("receipt"));
             return handleDisconnect(msg);
         }
         if (msg.getType().equals("SEND")) {

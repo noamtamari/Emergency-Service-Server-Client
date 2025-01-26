@@ -68,6 +68,9 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
                 }
             };
         } else {
+            synchronized(UserHandler.getInstance()){
+                UserHandler.getInstance().removeActiveUser(connectionId);
+            }
             releaseBuffer(buf);
             close();
             return null;
@@ -134,8 +137,5 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         if (((Frame) msg).getType().equals("ERROR")) {
             connections.disconnect(connectionId);
         }
-        // if (protocol.shouldTerminate()){
-        //     close();
-        // }
     }
 }

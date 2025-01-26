@@ -78,7 +78,6 @@ void StompProtocol::handleMessage(Frame frame)
 {
     string report_frame = frame.getBody();
     const string receipt = frame.getHeader("receipt-id");
-    std::cout << receipt <<  std::endl;
     const string channel = frame.getHeader("destination");
     Event event(report_frame, channel);
     unordered_map<string, unordered_map<string, vector<Event>>>::iterator user_reported = summary.find(event.getEventOwnerUser()); // Map of the user previous reports for all channels
@@ -90,7 +89,6 @@ void StompProtocol::handleMessage(Frame frame)
         reports_for_channel_vector.push_back(event);
         report_map.emplace(event.get_channel_name(), reports_for_channel_vector);
         summary.emplace(event.getEventOwnerUser(), report_map);
-        std::cout << event.getEventOwnerUser() << endl;
     }
     // User already reported previously
     else

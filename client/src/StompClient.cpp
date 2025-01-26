@@ -40,6 +40,9 @@ int main(int argc, char *argv[])
         if (read.size() != 0 && read[0] == "close")
         {
             running = false;
+            if (serverThread.joinable()) {
+                    serverThread.join(); // Wait for server listener to terminate
+            }
             // Free the allocated memory and close the connection
             if (stompProtocol != nullptr && !stompProtocol->isConnected())
             {
@@ -94,7 +97,6 @@ int main(int argc, char *argv[])
                             if (connectionHandler != nullptr && stompProtocol != nullptr && !stompProtocol->isConnected())
                             {
                                 stompProtocol->setConnected(true);
-                                // cout << "Starting server listener" << endl;
                                 serverThread = std::thread(serverListner, std::ref(*connectionHandler), std::ref(*stompProtocol), std::ref(running));
                             }
                         }
@@ -116,7 +118,6 @@ int main(int argc, char *argv[])
             {
                 if (stompProtocol != nullptr)
                 {
-                    cout << " HERE" << endl;
                     stompProtocol->processUserInput(read);
                 }
             }
@@ -145,13 +146,11 @@ void serverListner(ConnectionHandler &conncectionHandler, StompProtocol &stompPr
 {
     std::list<string> msgs;
     while (stompProtocol.isConnected())
-    {
-        // cout << "Server listener running" << endl;
+    {;
         string serverMessage;
         bool gotMessage = conncectionHandler.getLine(serverMessage);
         if (gotMessage && !serverMessage.empty())
         {
-            // cout << "Server message: " << serverMessage << endl;
             stompProtocol.processServerFrame(serverMessage);
         }
     }
