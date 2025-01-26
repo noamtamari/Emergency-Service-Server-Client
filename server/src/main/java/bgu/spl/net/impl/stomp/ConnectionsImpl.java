@@ -19,7 +19,6 @@ public class ConnectionsImpl<T> implements Connections<T> {
     public boolean send(int connectionId, T msg) {
         ConnectionHandler<T> connection = connections.get(connectionId);
         if (connection != null) {
-            // System.out.println("Connection impl send function : " + msg.toString());
             connection.send(msg);
             return true;
         }
