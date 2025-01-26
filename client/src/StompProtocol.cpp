@@ -240,7 +240,7 @@ void StompProtocol::processUserInput(vector<string> read)
 void StompProtocol::handleLogin(vector<string> read)
 {
     receipts++;
-    receipt_respons.emplace(receipts, "login succesful");
+    receipt_respons.emplace(receipts, "Login successful");
     Frame frame("CONNECT", {{"accept-version", "1.2"}, {"host", "stomp.cs.bgu.ac.il"},{"receipt", std::to_string(receipts)}, {"login", read[2]}, {"passcode", read[3]}}, "");
     string send = frame.toString();
     (*connectionHandler).sendLine(send);
