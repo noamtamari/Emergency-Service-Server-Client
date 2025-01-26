@@ -341,7 +341,6 @@ void StompProtocol::handleReport(vector<string> read)
             {
                 reciepts_count++;
                 event.setEventOwnerUser((*connectionHandler).get_user_name());
-                std::cout << "this is " << (*connectionHandler).get_user_name() << endl;
                 Frame frame("SEND", {{"destination", channel}, {"receipt", to_string(receipts)}}, event.toString());
                 string send = frame.toString();
                 (*connectionHandler).sendLine(send);
@@ -469,7 +468,6 @@ void StompProtocol::exportEventsToFile(const string &channel, const string &user
     }
     // Ensure the channel exists in the user's reports
     unordered_map<string, vector<Event>> &previous_user_reports = user_reported->second;
-    // std::cout << "Number of users '" << "': " << previous_user_reports.size() << std::endl;
     unordered_map<string, vector<Event>>::iterator event_channel = previous_user_reports.find(channel);
     if (event_channel == previous_user_reports.end())
     {
