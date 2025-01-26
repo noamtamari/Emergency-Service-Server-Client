@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <regex>
+#include <chrono>
 #include <unordered_map>
 #include "../include/Event.h" // Ensure this contains the definitions for Frame, Event, and names_and_events
 #include <list>
@@ -101,6 +102,7 @@ int main(int argc, char *argv[])
                 stompProtocol->processUserInput(read);
             }
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         // delete both stomp protocol and connecntion hanler
         if (stompProtocol != nullptr && !stompProtocol->isConnected() | read[0] == "logout")
         {
