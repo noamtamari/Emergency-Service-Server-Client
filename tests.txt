@@ -118,7 +118,8 @@ Report_7:
 	d)same as section c) but report from noam1 and summary from user noam.
 	e)login 127.0.0.1:7777 noam 123, summary police noam out4.txt - "you are not subscribed to channel police"
 	f)login 127.0.0.1:7777 noam 123, join police, summary police noy out5.txt - should create out5.txt like section a) 			meaning empty.
-	g)login 127.0.0.1:7777 noam 123 ,join police,join instagram. open another client, login 127.0.0.1:7777 noam1 123, join 	Instagram,join police, from user noam - report /workspaces/SPL3ProjectFiles/client/data/events1.json. in user noam1 - 		summary instagram noam out6.txt
+	g)login 127.0.0.1:7777 noam 123 ,join police,join instagram. open another client, login 127.0.0.1:7777 noam1 123, join 	instagram,join police, from user noam - report /workspaces/SPL3ProjectFiles/client/data/events1.json. in user noam1 - 		summary instagram noam out6.txt
+report /workspaces/SPL3ProjectFiles/client/data/instagram.json
 	h)login 127.0.0.1:7777 noam 123, summary - summary command needs 3 args: {channel_name} {user} {file}
 
 5)logout command -
@@ -131,7 +132,6 @@ Report_7:
 
 
 		
-bugs to handle - loging and then logout twice
 
 
 
