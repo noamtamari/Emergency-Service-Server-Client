@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     ConnectionHandler *connectionHandler = nullptr;  // Pointer to connectionHandler
     std::thread serverThread;  // Thread for server listener
 
-    bool running = true; // Main loop control variabl
+    bool running = true; // Main loop control variable
     
     while (running)
     {
