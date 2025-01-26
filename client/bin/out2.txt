@@ -31,7 +31,7 @@ Report_4:
 	summary: Two masked suspects armed w...
 
 Report_5:
-	city: Pallet Town
+	city: Aallet Town
 	date time: 25/12/2024 21:30
 	event name: Assault
 	summary: Male suspect assaulted anot...
@@ -39,7 +39,7 @@ Report_5:
 Report_6:
 	city: Gotham City
 	date time: 26/12/2024 06:20
-	event name: Drug Possession Arrest
+	event name: Arug Possession Arrest
 	summary: Police apprehended a suspec...
 
 Report_7:

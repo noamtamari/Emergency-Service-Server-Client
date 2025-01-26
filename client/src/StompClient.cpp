@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
                         // see what happens with the connection handler and delete? try again , etc
                         if (!connectionHandler->connect())
                         {
-                            std::cout << "\033[95mCannot connect to the server\033[0m" << std::endl;
+                            std::cout << "\033[95mCould not connect to the server\033[0m" << std::endl;
                         }
                         else
                         {
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
             // Connection was made but user tried to login again
             else if (stompProtocol != nullptr && read[0] == "login")
             {
-                std::cout << "\033[95mThe client is already logged in\033[0m" << std::endl;
+                std::cout << "\033[95mThe client is already logged in, log out before trying again\033[0m" << std::endl;
             }
             // Connection was made and user tries to preform command that is not login
             else
@@ -152,7 +152,6 @@ void serverListner(ConnectionHandler &conncectionHandler, StompProtocol &stompPr
             stompProtocol.processServerFrame(serverMessage);
         }
     }
-    cout << "Server listener exiting" << endl;
 }
 
 bool isValidHostPort(const std::string &input)
