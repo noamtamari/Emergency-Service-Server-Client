@@ -93,7 +93,7 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
             succseedUnsubscribe = connections.removeSubscription(subscriptionId, connectionId);
         }
         if (!succseedUnsubscribe) {
-            return errorFrame("Cannot unsubscribe to unsubscribe user", msg); // add msg
+            return errorFrame("You tried to unsubscribe from a channel you are not subscribe to", msg); // add msg
         }
         return null;
     }
@@ -131,10 +131,10 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         String userInfo = msg.getHeader("login");
         String userPasscode = msg.getHeader("passcode");
         // User already logged in
+        synchronized(userHandler){
         if (userInfo != null && userHandler.IsUserLogedIn(userInfo)) {
             return errorFrame("User already logged in", msg);
         }
-        synchronized(userHandler){
             // User not logged in and user exists
             if (userInfo != null && userPasscode != null && userHandler.userExists(userInfo)
                     && !userHandler.IsUserLogedIn(userInfo)) {
@@ -149,12 +149,6 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         Frame frame = new Frame("CONNECTED");
         String version = msg.getHeader("accept-version");
         frame.addHeader("version", version);
-        String receipt = msg.getHeader("receipt");
-        if (receipt == null) {
-            frame.addHeader("receipt-id", "-100");
-        } else {
-            frame.addHeader("receipt-id",receipt);
-        }
         connections.send(connectionId, frame);
         return null;
     }
@@ -169,8 +163,8 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         }
         frame.addHeader("message", "malformed frame received");
         String frameMsg = msg.stringMessage().replaceAll("\u0000", "");
-        frame.addHeader("The message", "\n" + "-----" + "\n" + frameMsg + "-----"+ "\n");
-        frame.setMessageBody(message);
+        //frame.addHeader("The message", "\n" + "-----" + "\n" + frameMsg + "-----"+ "\n");
+        frame.setMessageBody("The message: \n" + "-----" + "\n" + frameMsg + "-----"+ "\n" + message);
         synchronized(userHandler){
             UserHandler.getInstance().removeActiveUser(connectionId);
         }

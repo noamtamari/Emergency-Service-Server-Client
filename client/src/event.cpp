@@ -115,7 +115,6 @@ Event::Event(const std::string &frame_body, const std::string &channel): channel
                 continue;
             }
             else if(key == "description") {
-                cout << " I Know here" << endl;
                 inGeneralInformation = false;
 
                 eventDescription = val + "\n";
