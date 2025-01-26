@@ -83,20 +83,15 @@ Event::Event(const std::string &frame_body, const std::string &channel): channel
         if(line.find(':') != string::npos) {
             split_str(line, ':', lineArgs);
             string key = lineArgs.at(0);
-            cout << "key is:" << key << endl;
             if (key[0] == ' '){
                 key = key.substr(1);
             }
             string val;
             if(lineArgs.size() == 2) {
                 val = lineArgs.at(1);
-                cout << "val is:" << val << endl;
                 if (val[0] == ' '){
                     val = val.substr(1);
                 }
-            }
-            if (val[val.size()-1] == '\n'){
-                cout << "TRUEEE" << endl;
             }
             if(key == "user") {
                 eventOwnerUser = val;
@@ -116,14 +111,11 @@ Event::Event(const std::string &frame_body, const std::string &channel): channel
             }
             else if(key == "description") {
                 inGeneralInformation = false;
-
                 eventDescription = val + "\n";
                 while(getline(ss,line,'\n')) {
                     eventDescription += line + "\n";
-                    cout << eventDescription << endl;
                 }
                 description = eventDescription;
-                cout << description << endl;
             }
             if(inGeneralInformation) {
                 general_information_from_string[key] = val;

@@ -27,7 +27,6 @@ public class Frame {
         this.headers.put("subscription", subscriptionId);
         this.headers.put("message-id", String.valueOf(messageId));
         this.headers.put("destination", channel);
-        this.headers.put("receipt-id", frame.getHeader("receipt-id"));
         this.messageBody = frame.getMessageBody();
     }
 

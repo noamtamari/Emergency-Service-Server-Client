@@ -64,7 +64,6 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     @Override
     public void send(T msg) {
         System.out.println("Server Sent The following message :" + ((Frame)msg).getMessageBody());
-        System.out.println("Server Sent The following message :" + ((Frame)msg).getHeader("The message"));
         if (msg != null) {
             try {
                 out.write(encdec.encode(msg));
