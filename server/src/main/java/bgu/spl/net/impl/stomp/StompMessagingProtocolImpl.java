@@ -4,20 +4,33 @@ import bgu.spl.net.srv.Connections;
 import bgu.spl.net.srv.UserHandler;
 
 import bgu.spl.net.api.StompMessagingProtocol;
-
+/**
+ * Implementation of the STOMP messaging protocol.
+ * Handles incoming frames, processes them, and manages interactions between
+ * the server and clients.
+ */
 public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame> {
     private boolean shouldTerminate = false;
     private Connections<Frame> connections;
     private int connectionId;
     private UserHandler userHandler;
-
+/**
+     * Initializes the protocol with the given connection ID and connections manager.
+     *
+     * @param connectionId the ID of the current connection.
+     * @param connections  the Connections object managing all active connections.
+     */
     @Override
     public void start(int connectionId, Connections<Frame> connections) {
         this.connections = connections;
         this.connectionId = connectionId;
         userHandler = UserHandler.getInstance();
     }
-
+ /**
+     * Processes an incoming frame from a client.
+     *
+     * @param message the frame to process.
+     */
     @Override
     public void process(Frame message) {
         Frame process = processingMsg(message);
@@ -35,12 +48,21 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
             connections.send(connectionId, frame);
         }
     }
-
+/**
+     * Indicates whether the protocol should terminate the connection.
+     *
+     * @return true if the connection should terminate, false otherwise.
+     */
     @Override
     public boolean shouldTerminate() {
         return shouldTerminate;
     }
-
+/**
+     * Determines the appropriate handler method based on the frame type.
+     *
+     * @param msg the incoming frame.
+     * @return an error frame if the frame cannot be processed, null otherwise.
+     */
     public Frame processingMsg(Frame msg) {
         if (msg.getType().equals("SUBSCRIBE")) {
             return handleSubscribe(msg);
@@ -59,7 +81,12 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         }
         return null;
     }
-
+/**
+     * Handles a "SUBSCRIBE" frame.
+     *
+     * @param msg the subscription frame.
+     * @return an error frame if the subscription fails, null otherwise.
+     */
     public Frame handleSubscribe(Frame msg) {
         String destination = msg.getHeader("destination");
         // Id is subscription id
@@ -81,7 +108,12 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         }
         return null;
     }
-
+/**
+     * Handles an "UNSUBSCRIBE" frame.
+     *
+     * @param msg the unsubscribe frame.
+     * @return an error frame if the unsubscription fails, null otherwise.
+     */
     public Frame handleUnsubscribe(Frame msg) {
         String subscriptionId = msg.getHeader("id");
         // subscriptionId is legal
@@ -94,7 +126,12 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         }
         return null;
     }
-
+/**
+     * Handles a "DISCONNECT" frame.
+     *
+     * @param msg the disconnect frame.
+     * @return always null as disconnection is processed successfully.
+     */
     public Frame handleDisconnect(Frame msg) {
         Frame frame = new Frame("RECEIPT");
         frame.addHeader("receipt-id", msg.getHeader("receipt"));
@@ -106,7 +143,12 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         this.shouldTerminate = true;
         return null;
     }
-
+/**
+     * Handles a "SEND" frame.
+     *
+     * @param msg the send frame.
+     * @return an error frame if the message cannot be sent, null otherwise.
+     */
     public Frame handleSend(Frame msg) {
         String destination = msg.getHeader("destination");
         if (destination != null) {
@@ -120,7 +162,12 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         return null;
 
     }
-
+/**
+     * Handles a "CONNECT" frame.
+     *
+     * @param msg the connect frame.
+     * @return an error frame if connection fails, null otherwise.
+     */
     public Frame handleConnent(Frame msg) {
         String userInfo = msg.getHeader("login");
         String userPasscode = msg.getHeader("passcode");
@@ -146,7 +193,14 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         connections.send(connectionId, frame);
         return null;
     }
-
+/**
+     * Generates an error frame with a detailed message and description.
+     *
+     * @param message           the error message.
+     * @param detailedDescription a detailed explanation of the error.
+     * @param msg               the original frame that caused the error.
+     * @return an error frame.
+     */
     public Frame errorFrame(String message, String detailedDescroption ,Frame msg) {
         Frame frame = new Frame("ERROR");
         String receipt = msg.getHeader("receipt");
@@ -157,7 +211,6 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         }
         frame.addHeader("message", message);
         String frameMsg = msg.stringMessage().replaceAll("\u0000", "");
-        //frame.addHeader("The message", "\n" + "-----" + "\n" + frameMsg + "-----"+ "\n");
         frame.setMessageBody("The message: \n" + "-----" + "\n" + frameMsg + "-----"+ "\n" + detailedDescroption);
         synchronized(userHandler){
             UserHandler.getInstance().removeActiveUser(connectionId);

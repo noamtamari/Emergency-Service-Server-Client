@@ -22,7 +22,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     private final Queue<ByteBuffer> writeQueue = new ConcurrentLinkedQueue<>();
     private final SocketChannel chan;
     private final Reactor<T> reactor;
-    private ConnectionsImpl<T> connections;
+    private ConnectionsImpl<T> connections; // connections of the server
     private int connectionId;
 
     public NonBlockingConnectionHandler(
@@ -68,6 +68,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
                 }
             };
         } else {
+            // connection terminated by the client
             synchronized(UserHandler.getInstance()){
                 UserHandler.getInstance().removeActiveUser(connectionId);
             }
@@ -107,6 +108,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         }
 
         if (writeQueue.isEmpty()) {
+            // the server handled all client's messages and as a result of processing the messages should terminate
             if (protocol.shouldTerminate())
                 close();
             else
@@ -130,10 +132,12 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 
     @Override
     public void send(T msg) {
+        // the server sends a message to the client
         if (msg != null) {
             writeQueue.add(ByteBuffer.wrap(encdec.encode(msg)));
             reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
         }
+        // if the message is an error message, the server disconnects the client
         if (((Frame) msg).getType().equals("ERROR")) {
             connections.disconnect(connectionId);
         }

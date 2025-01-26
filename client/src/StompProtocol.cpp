@@ -367,7 +367,7 @@ void StompProtocol::handleExit(vector<string> read)
         // Check if the user is subscribed to the specified channel
         if (channel_subscriptionId == channel_subscription.end())
         {
-            std::cout << "\033[95myou are not subscribed to channel\033[0m" << std::endl;
+            std::cout << "\033[95myou are not subscribed to channel " + read[1]+"\033[0m" << std::endl;
         }
         else
         {
@@ -440,7 +440,7 @@ void StompProtocol::handleSummary(vector<string> read)
 {
     if (read.size() != 4)
     {
-        std::cout << "\033[95summary command needs 3 args: {channel_name} {user} {file}\033[0m" << std::endl;
+        std::cout << "\033[95msummary command needs 3 args: {channel_name} {user} {file}\033[0m" << std::endl;
     }
     else
     {

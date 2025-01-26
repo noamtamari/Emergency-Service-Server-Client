@@ -61,8 +61,8 @@ int main(int argc, char *argv[])
             {
                 if (read.size() != 4)
                 {
-                    std::cout << "\033[95login command needs 3 args: {host:port} {user} {password}\033[0m" << std::endl;
-                    continue; // Skip this iteration of the loop
+                    std::cout << "\033[95mlogin command needs 3 args: {host:port} {user} {password}\033[0m" << std::endl;
+                    continue;
                 }
                 else
                 {
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
                 std::cout << "\033[95mplease login first\033[0m" << std::endl;
             }
             // Connection was made but user tried to login again
-            else if (stompProtocol != nullptr &&  (read.size() != 0 && read[0] == "login"))
+            else if (stompProtocol != nullptr && (read.size() != 0 && read[0] == "login"))
             {
                 std::cout << "\033[95mThe client is already logged in, log out before trying again\033[0m" << std::endl;
             }
@@ -130,9 +130,8 @@ int main(int argc, char *argv[])
                 }
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-            // Handle logout and cleanup
-            if ((stompProtocol != nullptr && !stompProtocol->isConnected()) || (read.size() == 1 && read[0] == "logout"))
+            // delete both stomp protocol and connecntion hanler
+            if ((stompProtocol != nullptr && !stompProtocol->isConnected()) || (read.size() == 1 && connectionHandler != nullptr && read[0] == "logout"))
             {
                 cout << "logouting!!! " << endl;
                 serverThread.join();
@@ -159,7 +158,8 @@ void serverListner(ConnectionHandler &conncectionHandler, StompProtocol &stompPr
 {
     std::list<string> msgs;
     while (stompProtocol.isConnected())
-    {;
+    {
+        ;
         string serverMessage;
         bool gotMessage = conncectionHandler.getLine(serverMessage);
 
