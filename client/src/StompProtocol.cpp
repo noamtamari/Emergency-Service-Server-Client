@@ -95,7 +95,7 @@ void StompProtocol::handleError(Frame frame)
 {
     const string message = frame.getHeader("The message");
     std::cout << "\033[31mERROR FROM THE SERVER: \n \033[0m" << endl;
-    std::cout << "\033[31m" + frame.getBody() + "\033[0m" << endl;
+    std::cout << "\033[31m" + frame.toString() + "\033[0m" << endl;
     setConnected(false); // Disconnect the client
 }
 
@@ -450,7 +450,7 @@ void StompProtocol::handleSummary(vector<string> read)
 
         // Check if the user is subscribed to the given channel
         if (was_subscribed == (channel_reported->second).end()){
-            std::cout << "you are not subscribed to channel " + read[1] << endl;
+            std::cout << "\033[95myou are not subscribed to channel " + read[1] + "\033[0m" << std::endl;
         }
         else{
             string file_path = "../bin/" + read[3]; // Construct the file path for the output
@@ -542,7 +542,7 @@ const string StompProtocol::epoch_to_date(const string &input)
 }
 
 /**
- * @brief Exports event reports for a specific user and channel to a JSON file.
+ * @brief Exports event reports for a specific user and channel to a file.
  * 
  * @param channel The name of the channel to export events from.
  * @param user The name of the user whose events are being exported.

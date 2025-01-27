@@ -12,7 +12,7 @@ int main (int argc, char *argv[]) {
     std::string host = argv[1];
     short port = atoi(argv[2]);
     
-    ConnectionHandler connectionHandler(host, port);
+    ConnectionHandler connectionHandler(host, port, "eco");
     if (!connectionHandler.connect()) {
         std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
         return 1;

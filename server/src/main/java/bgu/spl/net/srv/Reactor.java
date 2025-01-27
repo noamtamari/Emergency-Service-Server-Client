@@ -86,14 +86,14 @@ public class Reactor<T> implements Server<T> {
         if (Thread.currentThread() == selectorThread) {
             if (key != null) {
                 key.interestOps(ops);
-            } else {
-                System.out.println("SelectionKey is null!");
             }
         } else {
-            selectorTasks.add(() -> {
-                key.interestOps(ops);
-            });
-            selector.wakeup();
+            if (key != null) {
+                selectorTasks.add(() -> {
+                    key.interestOps(ops);
+                });
+                selector.wakeup();
+            }
         }
     }
 

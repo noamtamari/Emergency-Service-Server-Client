@@ -14,7 +14,8 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
     private Connections<Frame> connections;
     private int connectionId;
     private UserHandler userHandler;
-/**
+    
+    /**
      * Initializes the protocol with the given connection ID and connections manager.
      *
      * @param connectionId the ID of the current connection.
@@ -26,7 +27,8 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         this.connectionId = connectionId;
         userHandler = UserHandler.getInstance();
     }
- /**
+
+    /**
      * Processes an incoming frame from a client.
      *
      * @param message the frame to process.
@@ -48,7 +50,8 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
             connections.send(connectionId, frame);
         }
     }
-/**
+
+    /**
      * Indicates whether the protocol should terminate the connection.
      *
      * @return true if the connection should terminate, false otherwise.
@@ -57,7 +60,8 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
     public boolean shouldTerminate() {
         return shouldTerminate;
     }
-/**
+
+    /**
      * Determines the appropriate handler method based on the frame type.
      *
      * @param msg the incoming frame.
@@ -81,7 +85,8 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         }
         return null;
     }
-/**
+
+    /**
      * Handles a "SUBSCRIBE" frame.
      *
      * @param msg the subscription frame.
@@ -108,7 +113,8 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         }
         return null;
     }
-/**
+
+    /**
      * Handles an "UNSUBSCRIBE" frame.
      *
      * @param msg the unsubscribe frame.
@@ -126,7 +132,8 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         }
         return null;
     }
-/**
+
+    /**
      * Handles a "DISCONNECT" frame.
      *
      * @param msg the disconnect frame.
@@ -143,7 +150,8 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         this.shouldTerminate = true;
         return null;
     }
-/**
+
+    /**
      * Handles a "SEND" frame.
      *
      * @param msg the send frame.
@@ -162,7 +170,8 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         return null;
 
     }
-/**
+
+    /**
      * Handles a "CONNECT" frame.
      *
      * @param msg the connect frame.
@@ -193,7 +202,8 @@ public class StompMessagingProtocolImpl implements StompMessagingProtocol<Frame>
         connections.send(connectionId, frame);
         return null;
     }
-/**
+
+    /**
      * Generates an error frame with a detailed message and description.
      *
      * @param message           the error message.

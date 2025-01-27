@@ -4,9 +4,6 @@ LDFLAGS:=-lboost_system -lpthread
 # -g: Generate debug information. -std=c++11: Compile using the C++11 standard. -Iinclude: Add the include directory to the compiler's search path.
 all: StompEMIClient
 
-# EchoClient: bin/ConnectionHandler.o bin/echoClient.o
-# 	g++ -o bin/EchoClient bin/ConnectionHandler.o bin/echoClient.o $(LDFLAGS)
-
 # This rule links the object files into the final executable bin/StompWCIClient.
 StompEMIClient: bin/ConnectionHandler.o bin/StompClient.o bin/Event.o bin/keyboardInput.o bin/Frame.o bin/StompProtocol.o
 	g++ -o bin/StompEMIClient bin/ConnectionHandler.o bin/StompClient.o bin/Event.o bin/keyboardInput.o bin/Frame.o bin/StompProtocol.o $(LDFLAGS)
@@ -14,9 +11,6 @@ StompEMIClient: bin/ConnectionHandler.o bin/StompClient.o bin/Event.o bin/keyboa
 # This rule compiles the source file src/ConnectionHandler.cpp into the object file bin/ConnectionHandler.o.
 bin/ConnectionHandler.o: src/ConnectionHandler.cpp
 	g++ $(CFLAGS) -o bin/ConnectionHandler.o src/ConnectionHandler.cpp
-
-# bin/echoClient.o: src/echoClient.cpp
-# 	g++ $(CFLAGS) -o bin/echoClient.o src/echoClient.cpp
 
 bin/Event.o: src/Event.cpp
 	g++ $(CFLAGS) -o bin/Event.o src/Event.cpp

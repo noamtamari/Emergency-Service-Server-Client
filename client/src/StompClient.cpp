@@ -38,11 +38,6 @@ int main(int argc, char *argv[])
         {
             running = false; // Breaks out of the main loop
 
-            // Ensures the server listener thread is terminated properly
-            if (serverThread.joinable()) {
-                    serverThread.join(); // Wait for the server listener thread to terminate
-            }
-
             // Clean up dynamically allocated resources
             if (stompProtocol != nullptr && !stompProtocol->isConnected())
             {
@@ -133,7 +128,6 @@ int main(int argc, char *argv[])
             // delete both stomp protocol and connecntion hanler
             if ((stompProtocol != nullptr && !stompProtocol->isConnected()) || (read.size() == 1 && connectionHandler != nullptr && read[0] == "logout"))
             {
-                cout << "logouting!!! " << endl;
                 serverThread.join();
             }
             if (stompProtocol != nullptr && !stompProtocol->isConnected())
@@ -149,7 +143,9 @@ int main(int argc, char *argv[])
         }
     }
     // Program termination message
-    cout << "Closing client.." << endl;
+    std::cout << "\033[31mC\033[0m" << "\033[33ml\033[0m" << "\033[32mo\033[0m" << "\033[36ms\033[0m"<< "\033[35mi\033[0m"<< 
+    "\033[31mn\033[0m"<<  "\033[33mg \033[0m"<<  "\033[32mC\033[0m"<<  "\033[36ml\033[0m"<<  "\033[35mi\033[0m"<<  "\033[31me\033[0m"<< 
+    "\033[33mn\033[0m"<<  "\033[32mt\033[0m"<<  std::endl;
     return 0;
 }
 

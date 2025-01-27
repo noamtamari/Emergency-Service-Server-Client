@@ -132,12 +132,12 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
 
     @Override
     public void send(T msg) {
-        // the server sends a message to the client
+        // The server sends a message to the client
         if (msg != null) {
             writeQueue.add(ByteBuffer.wrap(encdec.encode(msg)));
             reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
         }
-        // if the message is an error message, the server disconnects the client
+        // If the message is an error message, the server disconnects the client
         if (((Frame) msg).getType().equals("ERROR")) {
             connections.disconnect(connectionId);
         }
